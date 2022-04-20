@@ -4,6 +4,8 @@
 #include <string>
 #include <stdlib.h>
 
+using namespace std;
+
 struct player_exception{
 	enum err_type {index_out_of_bounds,missing_file,invalid_board};
 	err_type t;
@@ -16,8 +18,9 @@ public:
 	
 	/* Both players begin with all "Pedina" pieces: player 1 has x and player 2 has o
 	 * when a "Pedina" reaches the farthest row forward, becomes a "Dama" (X or O). 
+	 * type 'e' is used for empty board cells. 
 	 */
-	enum piece {x, o, X, O};
+	enum piece {x, o, X, O, e};
 	
 	/*
 	 * start player with empty history. player_nr can be either 1 or 2. 
