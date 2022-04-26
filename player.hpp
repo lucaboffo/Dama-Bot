@@ -4,7 +4,7 @@
 #include <string>
 #include <stdlib.h>
 
-
+using std::string;
 
 struct player_exception{
 	enum err_type {index_out_of_bounds,missing_file,invalid_board};
@@ -88,6 +88,9 @@ public:
 	 * in the history
 	 */
 	int recurrence() const;
+
+	//ATTENZIONE ELIMINARE SUCCESSIVAMENTE LE PROSSIME FUNZIONI->USO DI PROVA
+	int getPlayer_nr();
 	
 private:
 
