@@ -4,7 +4,7 @@
 #include <string>
 #include <stdlib.h>
 
-using namespace std;
+
 
 struct player_exception{
 	enum err_type {index_out_of_bounds,missing_file,invalid_board};
