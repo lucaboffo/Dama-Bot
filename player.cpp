@@ -17,11 +17,18 @@ Player::Player(int player_nr){
     Impl* pimpl;
     pimpl = new Impl;
     pimpl->history = nullptr;
-    pimpl->player_nr = player_nr;   
+    if(player_nr == 1 || player_nr == 2){
+        pimpl->player_nr = player_nr;
+    }else{
+        player_exception e;
+        e.t = e.index_out_of_bounds;
+        e.msg = "A questo gioco si gioca in 2!";
+        std::cout << e.msg << std::endl;
+        throw e;
+    }
 }
 
 Player::~Player(){
-    delete pimpl->history;
     delete pimpl;
 }
 
@@ -63,12 +70,13 @@ int Player::getPlayer_nr(){
 
 int main(){
 
-    Player p1;
-    Player p2(2);
+    Player p1(2);
+    //Player p2(2);
 
     //p1 = p2;
 
-    std::cout << p2.getPlayer_nr() << std::endl;
+    //std::cout << p2.getPlayer_nr() << std::endl;
+    std::cout << "fine" << std::endl;
     return 0;
 }
 
