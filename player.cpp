@@ -55,6 +55,29 @@ Player::piece Player::operator()(int r,int c,int hystory_offset) const{
     return p;
 }
 
+void Player::load_board(const string& filename){
+
+}
+
+void Player::init_board(const string& filename)const{
+    pimpl->history = new Player::Impl::Cell;
+    std::ofstream  output{filename};
+    if(!output.good())
+        throw player_exception{player_exception::missing_file, std::string{"File di output " + filename + " non è scrivibile"}};
+    for(int i=0; i<2; i++){
+        for(int j=0; j<8; j++){
+            pimpl->history->table[i][j] = piece::o;
+            output << pimpl->history->table[i][j];
+        }
+    }
+
+    if(!output.good())
+        throw player_exception{player_exception::missing_file, std::string{"Impossibile scrivere sul file di output " + filename}};
+    output.close();
+    if(output.fail())
+        throw player_exception{player_exception::missing_file, std::string{"Impossibile chiudere il file " + filename}};
+}
+
 /**
  * Funzioni aggiuntive
  */
@@ -65,13 +88,10 @@ int Player::getPlayer_nr(){
 
 int main(){
 
-    Player p1;
-    Player p2(2);
-
-    p1 = p2;
-
-    std::cout << p1.getPlayer_nr() << std::endl;
-    std::cout << "fine" << std::endl;
+Player p;
+p.init_board("scacchiera.txt");
+  
+  std::cout << "Tutto apposto bro" << std::endl;
     return 0;
 }
 
