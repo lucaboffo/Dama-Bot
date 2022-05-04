@@ -39,24 +39,49 @@ Player& Player::operator=(const Player& copy){
     return *this;
 }
 
+/**
+ * @brief 
+ * FIXTO: sistemare l'eccezione con hystory offset non presente in memoria
+ * @param r 
+ * @param c 
+ * @param hystory_offset 
+ * @return Player::piece 
+ */
 Player::piece Player::operator()(int r,int c,int hystory_offset) const{
     piece p;
-
-    if(hystory_offset == 0){
-        p = pimpl->history->table[r][c];
+    if(pimpl->history == nullptr || r > 8 || r < 0 || c > 8 || c < 0){
+        throw player_exception{player_exception::index_out_of_bounds, std::string{"Parametri non presenti in memoria!"}};
     }else{
-        int i = 0;
-        while(pimpl->history != nullptr || i != hystory_offset){
+        if(hystory_offset == 0){
             p = pimpl->history->table[r][c];
-            pimpl->history = pimpl->history->prev;
-            i++;
+        }else{
+            int i = 0;
+            while(pimpl->history->prev != nullptr || i != hystory_offset){
+                p = pimpl->history->table[r][c];
+                pimpl->history = pimpl->history->prev;
+                i++;
+            }
         }
     }
+    
     return p;
 }
 
 void Player::load_board(const string& filename){
-
+    pimpl->history = new Player::Impl::Cell;
+    std::ifstream input{filename};
+    if(!input.good()){
+        throw player_exception{player_exception::missing_file, std::string{"Errore nel file di input " + filename}};
+    }
+    /*for(int i=0; i<8; i++){
+        for(int j=0; j<8; j++){
+            std::string pezzo;
+            getline(input,pezzo);
+        }
+    }*/
+    std::string pezzo;
+    getline(input,pezzo);
+    std::cout << pezzo << std::endl;
 }
 
 void Player::init_board(const string& filename)const{
@@ -64,11 +89,46 @@ void Player::init_board(const string& filename)const{
     std::ofstream  output{filename};
     if(!output.good())
         throw player_exception{player_exception::missing_file, std::string{"File di output " + filename + " non è scrivibile"}};
-    for(int i=0; i<2; i++){
+    for(int i=0; i<8; i++){
         for(int j=0; j<8; j++){
-            pimpl->history->table[i][j] = piece::o;
-            output << pimpl->history->table[i][j];
+            if(i == 0 || i == 2){
+                if(j%2 == 0){
+                    pimpl->history->table[i][j] = piece::o;
+                    output << 'o';
+                }else{
+                    pimpl->history->table[i][j] = piece::e;
+                    output << ' ';
+                }
+            }else if(i == 1){
+                if(j%2 == 1){
+                    pimpl->history->table[i][j] = piece::o;
+                    output << 'o';
+                }else{
+                    pimpl->history->table[i][j] = piece::e;
+                    output << ' ';
+                }
+            }else if(i == 5 || i == 7){
+                if(j%2 == 1){
+                    pimpl->history->table[i][j] = piece::x;
+                    output << 'x';
+                }else{
+                    pimpl->history->table[i][j] = piece::e;
+                    output << ' ';
+                }
+            }else if(i == 6){
+                if(j%2 == 0){
+                    pimpl->history->table[i][j] = piece::x;
+                    output << 'x';
+                }else{
+                    pimpl->history->table[i][j] = piece::e;
+                    output << ' ';
+                }
+            }else{
+                pimpl->history->table[i][j] = piece::e;
+                output << ' ';
+            } 
         }
+        output << "\n";
     }
 
     if(!output.good())
@@ -90,6 +150,7 @@ int main(){
 
 Player p;
 p.init_board("scacchiera.txt");
+p.load_board("scacchiera.txt");
   
   std::cout << "Tutto apposto bro" << std::endl;
     return 0;
