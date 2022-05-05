@@ -6,6 +6,7 @@ struct Player::Impl{
         piece table[8][8];
         Cell* next;
         Cell* prev;
+        int history_offset;
     };
     typedef Cell* List;
     
@@ -31,11 +32,13 @@ Player::Player(const Player& copy){
     pimpl = new Impl;
     pimpl->player_nr = copy.pimpl->player_nr;
     pimpl->history = copy.pimpl->history;
+    pimpl->history->history_offset = copy.pimpl->history->history_offset;
 }
 
 Player& Player::operator=(const Player& copy){
     pimpl->player_nr = copy.pimpl->player_nr;
     pimpl->history = copy.pimpl->history;
+    pimpl->history->history_offset = copy.pimpl->history->history_offset;
     return *this;
 }
 
@@ -47,19 +50,21 @@ Player& Player::operator=(const Player& copy){
  * @param hystory_offset 
  * @return Player::piece 
  */
-Player::piece Player::operator()(int r,int c,int hystory_offset) const{
+Player::piece Player::operator()(int r,int c,int history_offset) const{
     piece p;
-    if(pimpl->history == nullptr || r > 8 || r < 0 || c > 8 || c < 0){
-        throw player_exception{player_exception::index_out_of_bounds, std::string{"Parametri non presenti in memoria!"}};
+    bool flag = false;
+    if(pimpl->history == nullptr || r > 8 || r < 0 || c > 8 || c < 0 || history_offset > pimpl->history->history_offset || history_offset < 0){
+        throw player_exception{player_exception::index_out_of_bounds,string{"Parametri non presenti in memoria!"}};
     }else{
-        if(hystory_offset == 0){
+        if(history_offset == 0){
             p = pimpl->history->table[r][c];
         }else{
-            int i = 0;
-            while(pimpl->history->prev != nullptr || i != hystory_offset){
-                p = pimpl->history->table[r][c];
+            while(pimpl->history != nullptr || flag == true){
+               if(pimpl->history->history_offset = history_offset){
+                   p = pimpl->history->table[r][c];
+                   flag = true;
+               }
                 pimpl->history = pimpl->history->prev;
-                i++;
             }
         }
     }
@@ -71,24 +76,43 @@ void Player::load_board(const string& filename){
     pimpl->history = new Player::Impl::Cell;
     std::ifstream input{filename};
     if(!input.good()){
-        throw player_exception{player_exception::missing_file, std::string{"Errore nel file di input " + filename}};
+        throw player_exception{player_exception::missing_file,string{"Errore nel file di input " + filename}};
     }
-    /*for(int i=0; i<8; i++){
+    for(int i=0; i<8; i++){
         for(int j=0; j<8; j++){
-            std::string pezzo;
-            getline(input,pezzo);
+            char pezzo;
+            input >> pezzo;
+
+            switch(pezzo){
+                case 'o':
+                    pimpl->history->table[i][j] = piece::o;
+                    break;
+                case 'O':
+                    pimpl->history->table[i][j] = piece::O;
+                    break;
+                case 'x':
+                    pimpl->history->table[i][j] = piece::x;
+                    break;
+                case 'X':
+                    pimpl->history->table[i][j] = piece::X;
+                    break;
+                case ' ':
+                    pimpl->history->table[i][j] = piece::e;
+                default:
+                    throw player_exception{player_exception::invalid_board,string{"Scacchiera non valida!"}};
+            }
+            std::cout << pezzo;
         }
-    }*/
-    std::string pezzo;
-    getline(input,pezzo);
-    std::cout << pezzo << std::endl;
+        std::cout << std::endl;
+    }
 }
 
 void Player::init_board(const string& filename)const{
     pimpl->history = new Player::Impl::Cell;
+    pimpl->history->history_offset = 0;
     std::ofstream  output{filename};
     if(!output.good())
-        throw player_exception{player_exception::missing_file, std::string{"File di output " + filename + " non è scrivibile"}};
+        throw player_exception{player_exception::missing_file,string{"File di output " + filename + " non è scrivibile"}};
     for(int i=0; i<8; i++){
         for(int j=0; j<8; j++){
             if(i == 0 || i == 2){
@@ -128,14 +152,16 @@ void Player::init_board(const string& filename)const{
                 output << ' ';
             } 
         }
-        output << "\n";
+        if(i < 7){
+            output << "\n";
+        }
     }
 
     if(!output.good())
-        throw player_exception{player_exception::missing_file, std::string{"Impossibile scrivere sul file di output " + filename}};
+        throw player_exception{player_exception::missing_file,string{"Impossibile scrivere sul file di output " + filename}};
     output.close();
     if(output.fail())
-        throw player_exception{player_exception::missing_file, std::string{"Impossibile chiudere il file " + filename}};
+        throw player_exception{player_exception::missing_file,string{"Impossibile chiudere il file " + filename}};
 }
 
 /**
@@ -150,7 +176,7 @@ int main(){
 
 Player p;
 p.init_board("scacchiera.txt");
-p.load_board("scacchiera.txt");
+std::cout << p(0,1) << std::endl;
   
   std::cout << "Tutto apposto bro" << std::endl;
     return 0;
