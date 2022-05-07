@@ -79,31 +79,37 @@ void Player::load_board(const string& filename){
         throw player_exception{player_exception::missing_file,string{"Errore nel file di input " + filename}};
     }
     for(int i=0; i<8; i++){
-        for(int j=0; j<8; j++){
+        int j = 0;
+        while(j < 8){
             char pezzo;
-            input >> pezzo;
-
-            switch(pezzo){
-                case 'o':
-                    pimpl->history->table[i][j] = piece::o;
-                    break;
-                case 'O':
-                    pimpl->history->table[i][j] = piece::O;
-                    break;
-                case 'x':
-                    pimpl->history->table[i][j] = piece::x;
-                    break;
-                case 'X':
-                    pimpl->history->table[i][j] = piece::X;
-                    break;
-                case ' ':
-                    pimpl->history->table[i][j] = piece::e;
-                default:
-                    throw player_exception{player_exception::invalid_board,string{"Scacchiera non valida!"}};
+            input >> std::noskipws >> pezzo;
+            if(pezzo != '\n'){
+                switch(pezzo){
+                    case 'o':
+                        pimpl->history->table[i][j] = piece::o;
+                        break;
+                    case 'O':
+                        pimpl->history->table[i][j] = piece::O;
+                        break;
+                    case 'x':
+                        pimpl->history->table[i][j] = piece::x;
+                        break;
+                    case 'X':
+                        pimpl->history->table[i][j] = piece::X;
+                        break;
+                    case ' ':
+                        pimpl->history->table[i][j] = piece::e;
+                        break;
+                    default:
+                        throw player_exception{player_exception::invalid_board,string{"Scacchiera non valida!"}};
+                }
+                j++;
             }
+                
+            //std::cout << pimpl->history->table[i][j] << '\t';
             std::cout << pezzo;
         }
-        std::cout << std::endl;
+        //std::cout << std::endl;
     }
 }
 
@@ -175,8 +181,7 @@ int Player::getPlayer_nr(){
 int main(){
 
 Player p;
-p.init_board("scacchiera.txt");
-std::cout << p(0,1) << std::endl;
+p.load_board("scacchiera.txt");
   
   std::cout << "Tutto apposto bro" << std::endl;
     return 0;
