@@ -105,12 +105,48 @@ void Player::load_board(const string& filename){
                 }
                 j++;
             }
-                
-            //std::cout << pimpl->history->table[i][j] << '\t';
-            std::cout << pezzo;
         }
-        //std::cout << std::endl;
     }
+}
+
+void Player::store_board(const string& filename, int history_offset)const{
+    Player p;
+    std::ofstream output{filename};
+    if(!output.good()){
+         throw player_exception{player_exception::missing_file,string{"File di output " + filename + " non è scrivibile"}};
+    }
+    for(int i=0; i<8; i++){
+        for(int j=0; j<8; j++){
+            std:: cout << p(i,j,history_offset) << '\t';
+            switch(p(i,j,history_offset)){
+                case piece::x:
+                output << 'x';
+                break;
+                case piece::X:
+                output << 'X';
+                break;
+                case piece::o:
+                output << 'o';
+                break;
+                case piece::O:
+                output << 'O';
+                break;
+                case piece::e:
+                output << ' ';
+                break;
+                default:
+                        throw player_exception{player_exception::invalid_board,string{"Scacchiera non valida!"}};
+            }
+        }
+        if(i < 7){
+            output << "\n";
+        }
+    }
+    if(!output.good())
+        throw player_exception{player_exception::missing_file,string{"Impossibile scrivere sul file di output " + filename}};
+    output.close();
+    if(output.fail())
+        throw player_exception{player_exception::missing_file,string{"Impossibile chiudere il file " + filename}};
 }
 
 void Player::init_board(const string& filename)const{
@@ -177,11 +213,23 @@ int Player::getPlayer_nr(){
     return pimpl->player_nr;
 }
 
+void Player::printScacchiera(){
+    for(int i=0; i<8; i++){
+        for(int j=0; j<8; j++){
+            std::cout << pimpl->history->table[i][j] << '\t';
+        }
+        std::cout << std::endl;
+    }
+}
+
 
 int main(){
 
 Player p;
 p.load_board("scacchiera.txt");
+p.store_board("scacchiera2.txt");
+p.load_board("scacchiera2.txt");
+p.printScacchiera();
   
   std::cout << "Tutto apposto bro" << std::endl;
     return 0;
