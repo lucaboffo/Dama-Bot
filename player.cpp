@@ -53,7 +53,7 @@ Player& Player::operator=(const Player& copy){
 Player::piece Player::operator()(int r,int c,int history_offset) const{
     piece p;
     bool flag = false;
-    if(pimpl->history == nullptr || r > 8 || r < 0 || c > 8 || c < 0 || history_offset > pimpl->history->history_offset || history_offset < 0){
+    if(pimpl->history == nullptr || r > 8 || r < 0 || c > 8 || c < 0 || history_offset < 0){
         throw player_exception{player_exception::index_out_of_bounds,string{"Parametri non presenti in memoria!"}};
     }else{
         if(history_offset == 0){
@@ -109,16 +109,20 @@ void Player::load_board(const string& filename){
     }
 }
 
+/**
+ * @brief 
+ * FIXTO: Manca la parte history offset != 0
+ * @param filename 
+ * @param history_offset 
+ */
 void Player::store_board(const string& filename, int history_offset)const{
-    Player p;
     std::ofstream output{filename};
     if(!output.good()){
          throw player_exception{player_exception::missing_file,string{"File di output " + filename + " non è scrivibile"}};
     }
     for(int i=0; i<8; i++){
         for(int j=0; j<8; j++){
-            std:: cout << p(i,j,history_offset) << '\t';
-            switch(p(i,j,history_offset)){
+            switch(pimpl->history->table[i][j]){
                 case piece::x:
                 output << 'x';
                 break;
@@ -206,6 +210,24 @@ void Player::init_board(const string& filename)const{
         throw player_exception{player_exception::missing_file,string{"Impossibile chiudere il file " + filename}};
 }
 
+void Player::move(){
+    bool mosso = false;
+    int i = 0;
+    while(i < 8 && mosso == true){
+        int j = 0;
+        while(j < 8){
+            if(pimpl->history->table[i][j] == piece::x && pimpl->history->table[i-1][j+1] == piece::e){
+                pimpl->history->table[i][j] = piece::e;
+                pimpl->history->table[i-1][j+1] = piece::x;
+                mosso = true;
+            }
+            j++;
+        }
+        i++;
+    }
+    pimpl->history->history_offset++;
+}
+
 /**
  * Funzioni aggiuntive
  */
@@ -226,10 +248,9 @@ void Player::printScacchiera(){
 int main(){
 
 Player p;
-p.load_board("scacchiera.txt");
-p.store_board("scacchiera2.txt");
-p.load_board("scacchiera2.txt");
-p.printScacchiera();
+p.init_board("scacchiera.txt");
+p.move();
+p.store_board("scacchieraMossa.txt");
   
   std::cout << "Tutto apposto bro" << std::endl;
     return 0;
