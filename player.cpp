@@ -5,12 +5,17 @@ struct Player::Impl{
     struct Cell{
         piece table[8][8];
         Cell* next;
-        Cell* prev;
-        int history_offset;
     };
     typedef Cell* List;
     
     List history;
+
+    void prepend(List& t){
+        List nuova;
+        nuova = new Cell;
+        nuova->next = t;
+        t = nuova;    
+    }
 };
 
 
@@ -32,41 +37,33 @@ Player::Player(const Player& copy){
     pimpl = new Impl;
     pimpl->player_nr = copy.pimpl->player_nr;
     pimpl->history = copy.pimpl->history;
-    pimpl->history->history_offset = copy.pimpl->history->history_offset;
 }
 
 Player& Player::operator=(const Player& copy){
     pimpl->player_nr = copy.pimpl->player_nr;
     pimpl->history = copy.pimpl->history;
-    pimpl->history->history_offset = copy.pimpl->history->history_offset;
     return *this;
 }
 
-/**
- * @brief 
- * FIXTO: sistemare l'eccezione con hystory offset non presente in memoria
- * @param r 
- * @param c 
- * @param hystory_offset 
- * @return Player::piece 
- */
 Player::piece Player::operator()(int r,int c,int history_offset) const{
     piece p;
     bool flag = false;
-    if(pimpl->history == nullptr || r > 8 || r < 0 || c > 8 || c < 0 || history_offset < 0){
+    Impl::List pCell = pimpl->history;
+    if( r > 8 || r < 0 || c > 8 || c < 0 || history_offset < 0){
         throw player_exception{player_exception::index_out_of_bounds,string{"Parametri non presenti in memoria!"}};
     }else{
-        if(history_offset == 0){
-            p = pimpl->history->table[r][c];
-        }else{
-            while(pimpl->history != nullptr || flag == true){
-               if(pimpl->history->history_offset = history_offset){
-                   p = pimpl->history->table[r][c];
-                   flag = true;
-               }
-                pimpl->history = pimpl->history->prev;
-            }
-        }
+       int sum = 0;
+       while(pCell != nullptr){
+           if(sum == history_offset){
+               p = pCell->table[r][c];
+           }
+           sum++;
+           pCell = pCell->next;
+       }
+       if(history_offset >= sum){
+           throw player_exception{player_exception::index_out_of_bounds,string{"Parametri non presenti in memoria!"}};
+           
+       }
     }
     
     return p;
@@ -116,6 +113,7 @@ void Player::load_board(const string& filename){
  * @param history_offset 
  */
 void Player::store_board(const string& filename, int history_offset)const{
+    Player p;
     std::ofstream output{filename};
     if(!output.good()){
          throw player_exception{player_exception::missing_file,string{"File di output " + filename + " non è scrivibile"}};
@@ -154,8 +152,7 @@ void Player::store_board(const string& filename, int history_offset)const{
 }
 
 void Player::init_board(const string& filename)const{
-    pimpl->history = new Player::Impl::Cell;
-    pimpl->history->history_offset = 0;
+    pimpl->prepend(pimpl->history);
     std::ofstream  output{filename};
     if(!output.good())
         throw player_exception{player_exception::missing_file,string{"File di output " + filename + " non è scrivibile"}};
@@ -212,20 +209,16 @@ void Player::init_board(const string& filename)const{
 
 void Player::move(){
     bool mosso = false;
-    int i = 0;
-    while(i < 8 && mosso == true){
-        int j = 0;
-        while(j < 8){
-            if(pimpl->history->table[i][j] == piece::x && pimpl->history->table[i-1][j+1] == piece::e){
-                pimpl->history->table[i][j] = piece::e;
-                pimpl->history->table[i-1][j+1] = piece::x;
-                mosso = true;
-            }
-            j++;
+    pimpl->prepend(pimpl->history);
+    for(int i=0; i<8; i++){
+        for(int j=0; j<8; j++){
+            pimpl->history->table[i][j] = pimpl->history->next->table[i][j];
         }
-        i++;
     }
-    pimpl->history->history_offset++;
+
+    pimpl->history->table[0][0] = piece::X;
+
+
 }
 
 /**
@@ -251,6 +244,9 @@ Player p;
 p.init_board("scacchiera.txt");
 p.move();
 p.store_board("scacchieraMossa.txt");
+
+std::cout << p(0,0,2) << std::endl;
+
   
   std::cout << "Tutto apposto bro" << std::endl;
     return 0;
