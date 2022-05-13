@@ -70,7 +70,7 @@ Player::piece Player::operator()(int r,int c,int history_offset) const{
 }
 
 void Player::load_board(const string& filename){
-    pimpl->history = new Player::Impl::Cell;
+    pimpl->prepend(pimpl->history);
     std::ifstream input{filename};
     if(!input.good()){
         throw player_exception{player_exception::missing_file,string{"Errore nel file di input " + filename}};
@@ -106,44 +106,49 @@ void Player::load_board(const string& filename){
     }
 }
 
-/**
- * @brief 
- * FIXTO: Manca la parte history offset != 0
- * @param filename 
- * @param history_offset 
- */
 void Player::store_board(const string& filename, int history_offset)const{
-    Player p;
     std::ofstream output{filename};
     if(!output.good()){
          throw player_exception{player_exception::missing_file,string{"File di output " + filename + " non è scrivibile"}};
     }
-    for(int i=0; i<8; i++){
-        for(int j=0; j<8; j++){
-            switch(pimpl->history->table[i][j]){
-                case piece::x:
-                output << 'x';
-                break;
-                case piece::X:
-                output << 'X';
-                break;
-                case piece::o:
-                output << 'o';
-                break;
-                case piece::O:
-                output << 'O';
-                break;
-                case piece::e:
-                output << ' ';
-                break;
-                default:
-                        throw player_exception{player_exception::invalid_board,string{"Scacchiera non valida!"}};
+    int sum = 0;
+    while(pimpl->history != nullptr){
+        if(sum == history_offset){
+            for(int i=0; i<8; i++){
+                for(int j=0; j<8; j++){
+                    switch(pimpl->history->table[i][j]){
+                        case piece::x:
+                        output << 'x';
+                        break;
+                        case piece::X:
+                        output << 'X';
+                        break;
+                        case piece::o:
+                        output << 'o';
+                        break;
+                        case piece::O:
+                        output << 'O';
+                        break;
+                        case piece::e:
+                        output << ' ';
+                        break;
+                        default:
+                            throw player_exception{player_exception::invalid_board,string{"Scacchiera non valida!"}};
+                    }
+                }
+                if(i < 7){
+                    output << "\n";
+                }
             }
         }
-        if(i < 7){
-            output << "\n";
-        }
+        sum++;
+        pimpl->history = pimpl->history->next;
     }
+    if(history_offset >= sum){
+           throw player_exception{player_exception::index_out_of_bounds,string{"Parametri non presenti in memoria!"}};
+           
+       }
+    
     if(!output.good())
         throw player_exception{player_exception::missing_file,string{"Impossibile scrivere sul file di output " + filename}};
     output.close();
@@ -216,7 +221,260 @@ void Player::move(){
         }
     }
 
-    pimpl->history->table[0][0] = piece::X;
+    if(pimpl->player_nr == 1){
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                if(i == 1){
+                    if(j == 0){
+                        if(pimpl->history->table[i][j] == piece::x){
+                            if(pimpl->history->table[i-1][j+1] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::X;
+                            }
+                        }
+                    }else if(j == 7){
+                        if(pimpl->history->table[i][j] == piece::x){
+                            if(pimpl->history->table[i-1][j-1] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::X;
+                            }
+                        }
+                    }else{
+                        if(pimpl->history->table[i][j] == piece::x){
+                            if(pimpl->history->table[i-1][j-1] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::X;
+                            }else if(pimpl->history->table[i-1][j+1] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::X;
+                            }
+                        }
+                    }
+                }else if(i == 0){
+                    if(j == 0){
+                        if(pimpl->history->table[i][j] == piece::X){
+                            if(pimpl->history->table[i+1][j+1] == piece::O && pimpl->history->table[i+2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j+1] = piece::e;
+                                pimpl->history->table[i+2][j+2] = piece::X;
+                            }else if(pimpl->history->table[i+1][j+1] == piece::o && pimpl->history->table[i+2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j+1] = piece::e;
+                                pimpl->history->table[i+2][j+2] = piece::X; 
+                            }
+                        }
+                    }else if(j == 7){
+                        if(pimpl->history->table[i][j] == piece::X){
+                            if(pimpl->history->table[i+1][j-1] == piece::O && pimpl->history->table[i+2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j-1] = piece::e;
+                                pimpl->history->table[i+2][j-2] = piece::X;
+                            }else if(pimpl->history->table[i+1][j-1] == piece::o && pimpl->history->table[i+2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j-1] = piece::e;
+                                pimpl->history->table[i+2][j-2] = piece::X; 
+                            }
+                        }
+                    }else{
+                        if(pimpl->history->table[i][j] == piece::X){
+                            if(pimpl->history->table[i+1][j-1] == piece::O && pimpl->history->table[i+2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j-1] = piece::e;
+                                pimpl->history->table[i+2][j-2] = piece::X;
+                            }else if(pimpl->history->table[i+1][j+1] == piece::O && pimpl->history->table[i+2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j+1] = piece::e;
+                                pimpl->history->table[i+2][j+2] = piece::X;
+                            }else if(pimpl->history->table[i+1][j-1] == piece::o && pimpl->history->table[i+2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j-1] = piece::e;
+                                pimpl->history->table[i+2][j-2] = piece::X; 
+                            }else if(pimpl->history->table[i+1][j+1] == piece::o && pimpl->history->table[i+2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j+1] = piece::e;
+                                pimpl->history->table[i+2][j+2] = piece::X; 
+                            }
+                        }
+                    }
+                }else if(i == 7){
+                     if(j == 0){
+                        if(pimpl->history->table[i][j] == piece::X){
+                            if(pimpl->history->table[i-1][j+1] == piece::O && pimpl->history->table[i-2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::e;
+                                pimpl->history->table[i-2][j+2] = piece::X;
+                            }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::e;
+                                pimpl->history->table[i-2][j+2] = piece::X; 
+                            }
+                        }else if(pimpl->history->table[i][j] == piece::x){
+                            if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::e;
+                                pimpl->history->table[i-2][j+2] = piece::x; 
+                            }
+                        }
+                    }else if(j == 7){
+                        if(pimpl->history->table[i][j] == piece::X){
+                            if(pimpl->history->table[i-1][j-1] == piece::O && pimpl->history->table[i-2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::e;
+                                pimpl->history->table[i-2][j-2] = piece::X;
+                            }else if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::e;
+                                pimpl->history->table[i-2][j-2] = piece::X; 
+                            }
+                        }else if(pimpl->history->table[i][j] == piece::x){
+                            if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::e;
+                                pimpl->history->table[i-2][j-2] = piece::x; 
+                            }
+                        }
+                    }else{
+                        if(pimpl->history->table[i][j] == piece::X){
+                            if(pimpl->history->table[i-1][j-1] == piece::O && pimpl->history->table[i-2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::e;
+                                pimpl->history->table[i-2][j-2] = piece::X;
+                            }else if(pimpl->history->table[i-1][j+1] == piece::O && pimpl->history->table[i-2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::e;
+                                pimpl->history->table[i-2][j+2] = piece::X;
+                            }else if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::e;
+                                pimpl->history->table[i-2][j-2] = piece::X; 
+                            }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::e;
+                                pimpl->history->table[i-2][j+2] = piece::X; 
+                            }
+                        }else if(pimpl->history->table[i][j] == piece::x){
+                            if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::e;
+                                pimpl->history->table[i-2][j-2] = piece::X; 
+                            }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::e;
+                                pimpl->history->table[i-2][j+2] = piece::X; 
+                            }
+                        }
+                    }
+                }else{
+                    if(j == 0){
+                        if(pimpl->history->table[i][j] == piece::X){
+                            if(pimpl->history->table[i-1][j+1] == piece::O && pimpl->history->table[i-2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::e;
+                                pimpl->history->table[i-2][j+2] = piece::X;
+                            }else if(pimpl->history->table[i+1][j+1] == piece::O && pimpl->history->table[i+2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j+1] = piece::e;
+                                pimpl->history->table[i+2][j+2] = piece::X;
+                            }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::e;
+                                pimpl->history->table[i-2][j+2] = piece::X; 
+                            }else if(pimpl->history->table[i+1][j+1] == piece::o && pimpl->history->table[i+2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j+1] = piece::e;
+                                pimpl->history->table[i+2][j+2] = piece::X; 
+                            }
+                        }else if(pimpl->history->table[i][j] == piece::x){
+                            if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::e;
+                                pimpl->history->table[i-2][j+2] = piece::x; 
+                            }
+                        }
+                    }else if(j == 7){
+                        if(pimpl->history->table[i][j] == piece::X){
+                            if(pimpl->history->table[i-1][j-1] == piece::O && pimpl->history->table[i-2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::e;
+                                pimpl->history->table[i-2][j-2] = piece::X;
+                            }else if(pimpl->history->table[i+1][j-1] == piece::O && pimpl->history->table[i+2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j-1] = piece::e;
+                                pimpl->history->table[i+2][j-2] = piece::X;
+                            }else if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::e;
+                                pimpl->history->table[i-2][j-2] = piece::X;
+                            }else if(pimpl->history->table[i+1][j-1] == piece::o && pimpl->history->table[i+2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j-1] = piece::e;
+                                pimpl->history->table[i+2][j-2] = piece::X; 
+                            }
+                        }else if(pimpl->history->table[i][j] == piece::x){
+                            if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::e;
+                                pimpl->history->table[i-2][j-2] = piece::x; 
+                            }
+                        }
+                    }else{
+                        if(pimpl->history->table[i][j] == piece::X){
+                            if(pimpl->history->table[i-1][j-1] == piece::O && pimpl->history->table[i-2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::e;
+                                pimpl->history->table[i-2][j-2] = piece::X;
+                            }else if(pimpl->history->table[i-1][j+1] == piece::O && pimpl->history->table[i-2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::e;
+                                pimpl->history->table[i-2][j+2] = piece::X;
+                            }else if(pimpl->history->table[i+1][j-1] == piece::O && pimpl->history->table[i+2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j-1] = piece::e;
+                                pimpl->history->table[i+2][j-2] = piece::X;
+                            }else if(pimpl->history->table[i+1][j+1] == piece::O && pimpl->history->table[i+2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j+1] = piece::e;
+                                pimpl->history->table[i+2][j+2] = piece::X;
+                            }else if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::e;
+                                pimpl->history->table[i-2][j-2] = piece::X;
+                            }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::e;
+                                pimpl->history->table[i-2][j+2] = piece::X;
+                            }else if(pimpl->history->table[i+1][j-1] == piece::o && pimpl->history->table[i+2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j-1] = piece::e;
+                                pimpl->history->table[i+2][j-2] = piece::X;
+                            }else if(pimpl->history->table[i+1][j+1] == piece::o && pimpl->history->table[i+2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i+1][j+1] = piece::e;
+                                pimpl->history->table[i+2][j+2] = piece::X;
+                            }
+                        }else if(pimpl->history->table[i][j] == piece::x){
+                            if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j-1] = piece::e;
+                                pimpl->history->table[i-2][j-2] = piece::X; 
+                            }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
+                                pimpl->history->table[i][j] = piece::e;
+                                pimpl->history->table[i-1][j+1] = piece::e;
+                                pimpl->history->table[i-2][j+2] = piece::X; 
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for(int j=0; j<8; j++){
+            if(pimpl->history->table[0][j] == piece::x){
+                pimpl->history->table[0][j] = piece::X;
+            }
+        }
+    }else{
+        //CONTINUARE PER GIOCATORE 2
+    }
 
 
 }
@@ -241,11 +499,10 @@ void Player::printScacchiera(){
 int main(){
 
 Player p;
-p.init_board("scacchiera.txt");
+p.load_board("scacchiera.txt");
 p.move();
-p.store_board("scacchieraMossa.txt");
+p.store_board("scacchiera2.txt");
 
-std::cout << p(0,0,2) << std::endl;
 
   
   std::cout << "Tutto apposto bro" << std::endl;
