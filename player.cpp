@@ -230,6 +230,7 @@ void Player::move(){
                             if(pimpl->history->table[i-1][j+1] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::X;
+                                mosso = true;
                             }
                         }
                     }else if(j == 7){
@@ -237,6 +238,7 @@ void Player::move(){
                             if(pimpl->history->table[i-1][j-1] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::X;
+                                mosso = true;
                             }
                         }
                     }else{
@@ -244,9 +246,11 @@ void Player::move(){
                             if(pimpl->history->table[i-1][j-1] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j+1] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::X;
+                                mosso = true;
                             }
                         }
                     }
@@ -257,10 +261,12 @@ void Player::move(){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j+1] = piece::e;
                                 pimpl->history->table[i+2][j+2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j+1] == piece::o && pimpl->history->table[i+2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j+1] = piece::e;
-                                pimpl->history->table[i+2][j+2] = piece::X; 
+                                pimpl->history->table[i+2][j+2] = piece::X;
+                                mosso = true;
                             }
                         }
                     }else if(j == 7){
@@ -269,10 +275,12 @@ void Player::move(){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j-1] = piece::e;
                                 pimpl->history->table[i+2][j-2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j-1] == piece::o && pimpl->history->table[i+2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j-1] = piece::e;
-                                pimpl->history->table[i+2][j-2] = piece::X; 
+                                pimpl->history->table[i+2][j-2] = piece::X;
+                                mosso = true; 
                             }
                         }
                     }else{
@@ -281,18 +289,22 @@ void Player::move(){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j-1] = piece::e;
                                 pimpl->history->table[i+2][j-2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j+1] == piece::O && pimpl->history->table[i+2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j+1] = piece::e;
                                 pimpl->history->table[i+2][j+2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j-1] == piece::o && pimpl->history->table[i+2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j-1] = piece::e;
-                                pimpl->history->table[i+2][j-2] = piece::X; 
+                                pimpl->history->table[i+2][j-2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j+1] == piece::o && pimpl->history->table[i+2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j+1] = piece::e;
-                                pimpl->history->table[i+2][j+2] = piece::X; 
+                                pimpl->history->table[i+2][j+2] = piece::X;
+                                mosso = true;
                             }
                         }
                     }
@@ -303,16 +315,19 @@ void Player::move(){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::e;
                                 pimpl->history->table[i-2][j+2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::X; 
+                                pimpl->history->table[i-2][j+2] = piece::X;
+                                mosso = true;
                             }
                         }else if(pimpl->history->table[i][j] == piece::x){
                             if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::x; 
+                                pimpl->history->table[i-2][j+2] = piece::x;
+                                mosso = true;
                             }
                         }
                     }else if(j == 7){
@@ -321,16 +336,19 @@ void Player::move(){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::e;
                                 pimpl->history->table[i-2][j-2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::X; 
+                                pimpl->history->table[i-2][j-2] = piece::X;
+                                mosso = true;
                             }
                         }else if(pimpl->history->table[i][j] == piece::x){
                             if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::x; 
+                                pimpl->history->table[i-2][j-2] = piece::x;
+                                mosso = true; 
                             }
                         }
                     }else{
@@ -339,28 +357,34 @@ void Player::move(){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::e;
                                 pimpl->history->table[i-2][j-2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j+1] == piece::O && pimpl->history->table[i-2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::e;
                                 pimpl->history->table[i-2][j+2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::e;
                                 pimpl->history->table[i-2][j-2] = piece::X; 
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::e;
                                 pimpl->history->table[i-2][j+2] = piece::X; 
+                                mosso = true;
                             }
                         }else if(pimpl->history->table[i][j] == piece::x){
                             if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::X; 
+                                pimpl->history->table[i-2][j-2] = piece::x; 
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::X; 
+                                pimpl->history->table[i-2][j+2] = piece::x; 
+                                mosso = true;
                             }
                         }
                     }
@@ -371,24 +395,29 @@ void Player::move(){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::e;
                                 pimpl->history->table[i-2][j+2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j+1] == piece::O && pimpl->history->table[i+2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j+1] = piece::e;
                                 pimpl->history->table[i+2][j+2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::e;
                                 pimpl->history->table[i-2][j+2] = piece::X; 
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j+1] == piece::o && pimpl->history->table[i+2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j+1] = piece::e;
                                 pimpl->history->table[i+2][j+2] = piece::X; 
+                                mosso = true;
                             }
                         }else if(pimpl->history->table[i][j] == piece::x){
                             if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::e;
                                 pimpl->history->table[i-2][j+2] = piece::x; 
+                                mosso = true;
                             }
                         }
                     }else if(j == 7){
@@ -397,24 +426,29 @@ void Player::move(){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::e;
                                 pimpl->history->table[i-2][j-2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j-1] == piece::O && pimpl->history->table[i+2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j-1] = piece::e;
                                 pimpl->history->table[i+2][j-2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::e;
                                 pimpl->history->table[i-2][j-2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j-1] == piece::o && pimpl->history->table[i+2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j-1] = piece::e;
                                 pimpl->history->table[i+2][j-2] = piece::X; 
+                                mosso = true;
                             }
                         }else if(pimpl->history->table[i][j] == piece::x){
                             if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::e;
                                 pimpl->history->table[i-2][j-2] = piece::x; 
+                                mosso = true;
                             }
                         }
                     }else{
@@ -423,47 +457,238 @@ void Player::move(){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::e;
                                 pimpl->history->table[i-2][j-2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j+1] == piece::O && pimpl->history->table[i-2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::e;
                                 pimpl->history->table[i-2][j+2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j-1] == piece::O && pimpl->history->table[i+2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j-1] = piece::e;
                                 pimpl->history->table[i+2][j-2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j+1] == piece::O && pimpl->history->table[i+2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j+1] = piece::e;
                                 pimpl->history->table[i+2][j+2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::e;
                                 pimpl->history->table[i-2][j-2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::e;
                                 pimpl->history->table[i-2][j+2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j-1] == piece::o && pimpl->history->table[i+2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j-1] = piece::e;
                                 pimpl->history->table[i+2][j-2] = piece::X;
+                                mosso = true;
                             }else if(pimpl->history->table[i+1][j+1] == piece::o && pimpl->history->table[i+2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i+1][j+1] = piece::e;
                                 pimpl->history->table[i+2][j+2] = piece::X;
+                                mosso = true;
                             }
                         }else if(pimpl->history->table[i][j] == piece::x){
                             if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::X; 
+                                pimpl->history->table[i-2][j-2] = piece::x; 
+                                mosso = true;
                             }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
                                 pimpl->history->table[i][j] = piece::e;
                                 pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::X; 
+                                pimpl->history->table[i-2][j+2] = piece::x;
+                                mosso = true; 
                             }
                         }
                     }
+                }
+                while(mosso == false){
+                    int nPezzi = 0;
+                    for(int k=0; k<8; k++){
+                        for(int l=0; l<8; l++){
+                            if(pimpl->history->table[k][l] == piece::X || pimpl->history->table[k][l] == piece::x){
+                                nPezzi++;
+                            }
+                        }
+                    }
+                    if(nPezzi == 0){
+                        //FUNZIONE CHE PERDE
+                    }else{
+                        srand(time(NULL));
+                        nPezzi++;
+                        int r = rand() % nPezzi + 1;
+                        std::cout<< r << std::endl;
+                        int count = 1;
+                        for(int i=0; i<8; i++){
+                            for(int j=0; j<8; j++){
+                                if(pimpl->history->table[i][j] == piece::X || pimpl->history->table[i][j] == piece::x){
+                                    if(count == r){
+                                        if(i == 0){
+                                            if(j == 0){
+                                                if(pimpl->history->table[i][j] == piece::X){
+                                                    if(pimpl->history->table[i+1][j+1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i+1][j+1] = piece::X;
+                                                        mosso = true;
+                                                    }
+                                                }
+                                            }else if(j == 7){
+                                                if(pimpl->history->table[i][j] == piece::X){
+                                                    if(pimpl->history->table[i+1][j-1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i+1][j-1] = piece::X;
+                                                        mosso = true;
+                                                    }
+                                                }
+                                            }else{
+                                                if(pimpl->history->table[i][j] == piece::X){
+                                                    if(pimpl->history->table[i+1][j-1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i+1][j-1] = piece::X;
+                                                        mosso = true;
+                                                    }else if(pimpl->history->table[i+1][j+1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i+1][j+1] = piece::X;
+                                                        mosso = true;
+                                                    }
+                                                }
+                                            }
+                                        }else if(i == 7){
+                                            if(j == 0){
+                                                if(pimpl->history->table[i][j] == piece::X){
+                                                    if(pimpl->history->table[i-1][j+1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j+1] = piece::X;
+                                                        mosso = true;
+                                                    }
+                                                }else if(pimpl->history->table[i][j] == piece::x){
+                                                    if(pimpl->history->table[i-1][j+1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j+1] = piece::x;
+                                                        mosso = true;
+                                                    }
+                                                }
+                                            }else if(j == 7){
+                                                if(pimpl->history->table[i][j] == piece::X){
+                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j-1] = piece::X;
+                                                        mosso = true;
+                                                    }
+                                                }else if(pimpl->history->table[i][j] == piece::x){
+                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j-1] = piece::x;
+                                                        mosso = true; 
+                                                    }
+                                                }
+                                            }else{
+                                                if(pimpl->history->table[i][j] == piece::X){
+                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j-1] = piece::X;
+                                                        mosso = true;
+                                                    }else if(pimpl->history->table[i-1][j+1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j+1] = piece::X;
+                                                        mosso = true;
+                                                    }
+                                                }else if(pimpl->history->table[i][j] == piece::x){
+                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j-1] = piece::x;
+                                                        pimpl->history->table[i-2][j-2] = piece::x; 
+                                                        mosso = true;
+                                                    }else if(pimpl->history->table[i-1][j+1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j+1] = piece::x;
+                                                        mosso = true;
+                                                    }
+                                                }
+                                            }
+                                        }else{
+                                            if(j == 0){
+                                                if(pimpl->history->table[i][j] == piece::X){
+                                                    if(pimpl->history->table[i-1][j+1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j+1] = piece::X;
+                                                        mosso = true;
+                                                    }else if(pimpl->history->table[i+1][j+1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i+1][j+1] = piece::X;
+                                                        mosso = true;
+                                                    }
+                                                }else if(pimpl->history->table[i][j] == piece::x){
+                                                    if(pimpl->history->table[i-1][j+1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j+1] = piece::x;
+                                                        mosso = true;
+                                                    }
+                                                }
+                                            }else if(j == 7){
+                                                if(pimpl->history->table[i][j] == piece::X){
+                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j-1] = piece::X;
+                                                        mosso = true;
+                                                    }else if(pimpl->history->table[i+1][j-1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i+1][j-1] = piece::X;
+                                                        mosso = true;
+                                                    }
+                                                }else if(pimpl->history->table[i][j] == piece::x){
+                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j-1] = piece::x;
+                                                        mosso = true;
+                                                    }
+                                                }
+                                            }else{
+                                                if(pimpl->history->table[i][j] == piece::X){
+                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j-1] = piece::X;
+                                                        mosso = true;
+                                                    }else if(pimpl->history->table[i-1][j+1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j+1] = piece::X;
+                                                        mosso = true;
+                                                    }else if(pimpl->history->table[i+1][j-1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i+1][j-1] = piece::X;
+                                                        mosso = true;
+                                                    }else if(pimpl->history->table[i+1][j+1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i+1][j+1] = piece::X;
+                                                        mosso = true;
+                                                    }
+                                                }else if(pimpl->history->table[i][j] == piece::x){
+                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j-1] = piece::x;
+                                                        mosso = true;
+                                                    }else if(pimpl->history->table[i-1][j+1] == piece::e){
+                                                        pimpl->history->table[i][j] = piece::e;
+                                                        pimpl->history->table[i-1][j+1] = piece::x;
+                                                        mosso = true; 
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+                    
                 }
             }
         }
