@@ -1,5 +1,4 @@
 #include "player.hpp"
-
 struct Player::Impl{
     int player_nr;
     struct Cell{
@@ -10,14 +9,219 @@ struct Player::Impl{
     
     List history;
 
-    void prepend(List& t){
-        List nuova;
-        nuova = new Cell;
-        nuova->next = t;
-        t = nuova;    
-    }
+    void prepend(List& t);
+    bool promozione();
+
+    bool mangia_su_sinistra(int i, int j, int mangia, int da_mangiare);
+    bool mangia_su_destra(int i, int j, int mangia, int da_mangiare);
+    bool mangia_giu_sinistra(int i, int j, int mangia, int da_mangiare);
+    bool mangia_giu_destra(int i, int j, int mangia, int da_mangiare);
+
+    bool damone_mangia(int i, int j,int mangia, int da_mangiare);
+    bool dama_mangia(int i, int j, int mangia, int da_mangiare);
+
+    bool mangia();
 };
 
+void Player::Impl::prepend(List& t){
+    List nuova;
+        nuova = new Cell;
+        nuova->next = t;
+        t = nuova;
+}
+
+bool Player::Impl::promozione(){
+    bool mosso = false;
+    if(player_nr == 1){
+        for(int j=0; j<8; j++){
+            if(j == 0){
+                if(history->table[1][j] == piece::x){
+                    if(history->table[1-1][j+1] == piece::e){
+                        history->table[1][j] = piece::e;
+                        history->table[1-1][j+1] = piece::X;
+                        mosso = true;
+                    }
+                }
+            }else if(j == 7){
+                if(history->table[1][j] == piece::x){
+                    if(history->table[1-1][j-1] == piece::e){
+                        history->table[1][j] = piece::e;
+                        history->table[1-1][j-1] = piece::X;
+                        mosso = true;
+                    }
+                }
+            }else{
+                if(history->table[1][j] == piece::x){
+                    if(history->table[1-1][j-1] == piece::e){
+                        history->table[1][j] = piece::e;
+                        history->table[1-1][j-1] = piece::X;
+                        mosso = true;
+                    }else if(history->table[1-1][j+1] == piece::e){
+                        history->table[1][j] = piece::e;
+                        history->table[1-1][j+1] = piece::X;
+                        mosso = true;
+                    }
+                }
+            }
+        }
+    }else{
+      for(int j=0; j<8; j++){
+            if(j == 0){
+                if(history->table[6][j] == piece::o){
+                    if(history->table[6+1][j+1] == piece::e){
+                        history->table[6][j] = piece::e;
+                        history->table[6+1][j+1] = piece::O;
+                        mosso = true;
+                    }
+                }
+            }else if(j == 7){
+                if(history->table[6][j] == piece::o){
+                    if(history->table[6+1][j-1] == piece::e){
+                        history->table[6][j] = piece::e;
+                        history->table[6+1][j-1] = piece::O;
+                        mosso = true;
+                    }
+                }
+            }else{
+                if(history->table[6][j] == piece::o){
+                    if(history->table[6+1][j-1] == piece::e){
+                        history->table[6][j] = piece::e;
+                        history->table[6+1][j-1] = piece::O;
+                        mosso = true;
+                    }else if(history->table[6+1][j+1] == piece::e){
+                        history->table[6][j] = piece::e;
+                        history->table[6+1][j+1] = piece::O;
+                        mosso = true;
+                    }
+                }
+            }
+        }  
+    }
+    return mosso;
+}
+
+bool Player::Impl::mangia_su_sinistra(int i, int j, int mangia, int da_mangiare){
+    bool mosso = false;
+    if(history->table[i][j] == mangia){
+        if(history->table[i-1][j-1] == da_mangiare && history->table[i-2][j-2] == piece::e){
+            history->table[i][j] = piece::e;
+            history->table[i-1][j-1] = piece::e;
+            history->table[i-2][j-2] = (piece)mangia;
+            mosso = true;
+        }
+    }
+    return mosso;
+}
+
+bool Player::Impl::mangia_su_destra(int i, int j, int mangia, int da_mangiare){
+    bool mosso = false;
+    if(history->table[i][j] == mangia){
+        if(history->table[i-1][j+1] == mangia && history->table[i-2][j+2] == piece::e){
+            history->table[i][j] = piece::e;
+            history->table[i-1][j+1] = piece::e;
+            history->table[i-2][j+2] = (piece)mangia;
+            mosso = true;
+        }
+    }
+    return mosso;
+}
+
+bool Player::Impl::mangia_giu_sinistra(int i, int j, int mangia, int da_mangiare){
+    bool mosso = false;
+    if(history->table[i][j] == mangia){
+        if(history->table[i+1][j-1] == da_mangiare && history->table[i+2][j-2] == piece::e){
+            history->table[i][j] = piece::e;
+            history->table[i+1][j-1] = piece::e;
+            history->table[i+2][j-2] = (piece)mangia;
+            mosso = true;
+        }
+    }
+    return mosso;
+}
+
+bool Player::Impl::mangia_giu_destra(int i, int j, int mangia, int da_mangiare){
+    bool mosso = false;
+    if(history->table[i][j] == mangia){
+        if(history->table[i+1][j+1] == mangia && history->table[i-2][j+2] == piece::e){
+            history->table[i][j] = piece::e;
+            history->table[i+1][j+1] = piece::e;
+            history->table[i+2][j+2] = (piece)mangia;
+            mosso = true;
+        }
+    }
+    return mosso;
+}
+
+bool Player::Impl::damone_mangia(int i, int j,int mangia, int da_mangiare){
+    bool mosso = false;
+            if(i == 0){
+                if(j == 0){
+                    if(mosso == false)
+                        mosso = mangia_giu_destra(i,j,mangia,da_mangiare);
+                }else{
+                    if(mosso == false)
+                        mosso = mangia_giu_destra(i,j,mangia,da_mangiare);
+                    if(mosso == false)
+                        mosso = mangia_giu_sinistra(i,j,mangia,da_mangiare);
+                }
+            }else if(i == 7){
+                if(j == 7){
+                    if(mosso == false)
+                        mosso = mangia_su_sinistra(i,j,mangia,da_mangiare);
+                }else{
+                    if(mosso == false)
+                        mosso = mangia_su_destra(i,j,mangia,da_mangiare);
+                    if(mosso == false)
+                        mosso = mangia_su_sinistra(i,j,mangia,da_mangiare);
+                }
+            }else{
+                if(j == 0){
+                    if(mosso == false)
+                        mosso = mangia_su_destra(i,j,mangia,da_mangiare);
+                    if(mosso == false)
+                        mosso = mangia_giu_destra(i,j,mangia,da_mangiare);
+                }else if(j == 7){
+                    if(mosso == false)
+                        mosso = mangia_su_sinistra(i,j,mangia,da_mangiare);
+                    if(mosso == false)
+                        mosso = mangia_su_destra(i,j,mangia,da_mangiare);
+                }else{
+                    if(mosso == false)
+                        mosso = mangia_su_destra(i,j,mangia,da_mangiare);
+                    if(mosso == false)
+                        mosso = mangia_su_sinistra(i,j,mangia,da_mangiare);
+                    if(mosso == false)
+                        mosso = mangia_giu_destra(i,j,mangia,da_mangiare);
+                    if(mosso == false)
+                        mosso = mangia_giu_sinistra(i,j,mangia,da_mangiare);
+                }
+            }
+            return mosso;    
+}
+
+bool Player::Impl::mangia(){
+    bool mosso = false;
+    for(int i=0; i<8; i++){
+        for(int j=0; j<0; j++){
+            if(player_nr == 1){
+                if(history->table[i][j] == piece::X){
+                    if(mosso == false)
+                        mosso = damone_mangia(i,j,piece::X,piece::O);
+                    if(mosso == false)
+                        mosso = damone_mangia(i,j,piece::X,piece::o);
+                }
+            }else{
+                if(history->table[i][j] == piece::O){
+                    if(mosso == false)
+                        mosso = damone_mangia(i,j,piece::O,piece::X);
+                    if(mosso == false)
+                        mosso = damone_mangia(i,j,piece::O,piece::x);
+                }
+            }
+        }
+    }
+    return mosso;
+}
 
 Player::Player(int player_nr){
     pimpl = new Impl;
@@ -221,40 +425,11 @@ void Player::move(){
         }
     }
 
-    if(pimpl->player_nr == 1){
+    mosso = pimpl->mangia(); 
+    /*if(pimpl->player_nr == 1){
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
-                if(i == 1){
-                    if(j == 0){
-                        if(pimpl->history->table[i][j] == piece::x){
-                            if(pimpl->history->table[i-1][j+1] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::X;
-                                mosso = true;
-                            }
-                        }
-                    }else if(j == 7){
-                        if(pimpl->history->table[i][j] == piece::x){
-                            if(pimpl->history->table[i-1][j-1] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::X;
-                                mosso = true;
-                            }
-                        }
-                    }else{
-                        if(pimpl->history->table[i][j] == piece::x){
-                            if(pimpl->history->table[i-1][j-1] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j+1] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::X;
-                                mosso = true;
-                            }
-                        }
-                    }
-                }else if(i == 0){
+                if(i == 0){
                     if(j == 0){
                         if(pimpl->history->table[i][j] == piece::X){
                             if(pimpl->history->table[i+1][j+1] == piece::O && pimpl->history->table[i+2][j+2] == piece::e){
@@ -699,7 +874,7 @@ void Player::move(){
         }
     }else{
         //CONTINUARE PER GIOCATORE 2
-    }
+    }*/
 
 
 }
@@ -728,8 +903,6 @@ p.load_board("scacchiera.txt");
 p.move();
 p.store_board("scacchiera2.txt");
 
-
-  
   std::cout << "Tutto apposto bro" << std::endl;
     return 0;
 }
