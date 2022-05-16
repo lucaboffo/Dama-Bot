@@ -10,17 +10,28 @@ struct Player::Impl{
     List history;
 
     void prepend(List& t);
-    bool promozione();
+    bool m_promuovi();
+    void promuovi();
 
     bool mangia_su_sinistra(int i, int j, int mangia, int da_mangiare);
     bool mangia_su_destra(int i, int j, int mangia, int da_mangiare);
     bool mangia_giu_sinistra(int i, int j, int mangia, int da_mangiare);
     bool mangia_giu_destra(int i, int j, int mangia, int da_mangiare);
 
-    bool damone_mangia(int i, int j,int mangia, int da_mangiare);
-    bool dama_mangia(int i, int j, int mangia, int da_mangiare);
+    bool d_mangia(int i, int j, int mangia, int da_mangiare);
 
     bool mangia();
+
+    bool muovi_su_sinistra(int i, int j, int da_muovere, int predatore = -1);
+    bool muovi_su_destra(int i, int j, int da_muovere, int predatore = -1);
+    bool muovi_giu_sinistra(int i, int j, int da_muovere, int predatore = -1);
+    bool muovi_giu_destra(int i, int j, int da_muovere, int predatore = -1);
+
+    bool p_muovi(int i, int j, int da_muovere, int predatore = -1);
+
+    bool muovi(int i, int j);
+
+    bool muovi_r();
 };
 
 void Player::Impl::prepend(List& t){
@@ -30,7 +41,7 @@ void Player::Impl::prepend(List& t){
         t = nuova;
 }
 
-bool Player::Impl::promozione(){
+bool Player::Impl::m_promuovi(){
     bool mosso = false;
     if(player_nr == 1){
         for(int j=0; j<8; j++){
@@ -100,6 +111,20 @@ bool Player::Impl::promozione(){
     return mosso;
 }
 
+void Player::Impl::promuovi(){
+    for(int j=0; j<8; j++){
+        if(player_nr == 1){
+            if(history->table[0][j] == piece::x){
+                history->table[0][j] = piece::X;
+            }
+        }else{
+            if(history->table[7][j] == piece::o){
+                history->table[7][j] = piece::O;
+            }
+        }         
+    }
+}
+
 bool Player::Impl::mangia_su_sinistra(int i, int j, int mangia, int da_mangiare){
     bool mosso = false;
     if(history->table[i][j] == mangia){
@@ -116,7 +141,7 @@ bool Player::Impl::mangia_su_sinistra(int i, int j, int mangia, int da_mangiare)
 bool Player::Impl::mangia_su_destra(int i, int j, int mangia, int da_mangiare){
     bool mosso = false;
     if(history->table[i][j] == mangia){
-        if(history->table[i-1][j+1] == mangia && history->table[i-2][j+2] == piece::e){
+        if(history->table[i-1][j+1] == da_mangiare && history->table[i-2][j+2] == piece::e){
             history->table[i][j] = piece::e;
             history->table[i-1][j+1] = piece::e;
             history->table[i-2][j+2] = (piece)mangia;
@@ -142,7 +167,7 @@ bool Player::Impl::mangia_giu_sinistra(int i, int j, int mangia, int da_mangiare
 bool Player::Impl::mangia_giu_destra(int i, int j, int mangia, int da_mangiare){
     bool mosso = false;
     if(history->table[i][j] == mangia){
-        if(history->table[i+1][j+1] == mangia && history->table[i-2][j+2] == piece::e){
+        if(history->table[i+1][j+1] == da_mangiare && history->table[i-2][j+2] == piece::e){
             history->table[i][j] = piece::e;
             history->table[i+1][j+1] = piece::e;
             history->table[i+2][j+2] = (piece)mangia;
@@ -152,7 +177,7 @@ bool Player::Impl::mangia_giu_destra(int i, int j, int mangia, int da_mangiare){
     return mosso;
 }
 
-bool Player::Impl::damone_mangia(int i, int j,int mangia, int da_mangiare){
+bool Player::Impl::d_mangia(int i, int j,int mangia, int da_mangiare){
     bool mosso = false;
             if(i == 0){
                 if(j == 0){
@@ -202,22 +227,206 @@ bool Player::Impl::damone_mangia(int i, int j,int mangia, int da_mangiare){
 bool Player::Impl::mangia(){
     bool mosso = false;
     for(int i=0; i<8; i++){
-        for(int j=0; j<0; j++){
+        for(int j=0; j<8; j++){
             if(player_nr == 1){
                 if(history->table[i][j] == piece::X){
                     if(mosso == false)
-                        mosso = damone_mangia(i,j,piece::X,piece::O);
+                        mosso = d_mangia(i,j,piece::X,piece::O);
                     if(mosso == false)
-                        mosso = damone_mangia(i,j,piece::X,piece::o);
+                        mosso = d_mangia(i,j,piece::X,piece::o);
+                }else if(history->table[i][j] == piece::x){
+                    if(mosso == false)
+                        mosso = d_mangia(i,j,piece::x,piece::o);
                 }
             }else{
                 if(history->table[i][j] == piece::O){
                     if(mosso == false)
-                        mosso = damone_mangia(i,j,piece::O,piece::X);
+                        mosso = d_mangia(i,j,piece::O,piece::X);
                     if(mosso == false)
-                        mosso = damone_mangia(i,j,piece::O,piece::x);
+                        mosso = d_mangia(i,j,piece::O,piece::x);
+                }else if(history->table[i][j] == piece::o){
+                    if(mosso == false)
+                        mosso = d_mangia(i,j,piece::o,piece::x);
                 }
             }
+        }
+    }
+    return mosso;
+}
+
+bool Player::Impl::muovi_su_sinistra(int i, int j, int da_muovere, int predatore){
+    bool mosso = false;
+    if(history->table[i][j] == da_muovere){
+        if(history->table[i-1][j-1] == piece::e && history->table[i-2][j-2] != predatore){
+            history->table[i][j] = piece::e;
+            history->table[i-1][j-1] = (piece)da_muovere;
+            mosso = true;
+        }
+    }
+    return mosso;
+}
+
+bool Player::Impl::muovi_su_destra(int i, int j, int da_muovere, int predatore){
+    bool mosso = false;
+    if(history->table[i][j] == da_muovere){
+        if(history->table[i-1][j+1] == piece::e && history->table[i-2][j+2] != predatore){
+            history->table[i][j] = piece::e;
+            history->table[i-1][j+1] = (piece)da_muovere;
+            mosso = true;
+        }
+    }
+    return mosso;
+}
+
+bool Player::Impl::muovi_giu_sinistra(int i, int j, int da_muovere, int predatore){
+    bool mosso = false;
+    if(history->table[i][j] == da_muovere){
+        if(history->table[i+1][j-1] == piece::e && history->table[i+2][j-2] != predatore){
+            history->table[i][j] = piece::e;
+            history->table[i+1][j-1] = (piece)da_muovere;
+            mosso = true;
+        }
+    }
+    return mosso;
+}
+
+bool Player::Impl::muovi_giu_destra(int i, int j, int da_muovere, int predatore){
+    bool mosso = false;
+    if(history->table[i][j] == da_muovere){
+        if(history->table[i+1][j+1] == piece::e && history->table[i+2][j+2] != predatore){
+            history->table[i][j] = piece::e;
+            history->table[i+1][j+1] = (piece)da_muovere;
+            mosso = true;
+        }
+    }
+    return mosso;
+}
+
+bool Player::Impl::p_muovi(int i, int j, int da_muovere, int predatore){
+    bool mosso = false;
+        if(i == 0){
+            if(j == 0){
+                if(mosso == false)
+                    mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                }else{
+                    if(mosso == false)
+                        mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                    if(mosso == false)
+                        mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                }
+            }else if(i == 7){
+                if(j == 7){
+                    if(mosso == false)
+                        mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
+                }else{
+                    if(mosso == false)
+                        mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                    if(mosso == false)
+                        mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
+                }
+            }else{
+                if(j == 0){
+                    if(mosso == false)
+                        mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                    if(mosso == false)
+                        mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                }else if(j == 7){
+                    if(mosso == false)
+                        mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
+                    if(mosso == false)
+                        mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                }else{
+                    if(mosso == false)
+                        mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                    if(mosso == false)
+                        mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
+                    if(mosso == false)
+                        mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                    if(mosso == false)
+                        mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                }
+            }
+            return mosso;    
+}
+
+bool Player::Impl::muovi(int i, int j){
+    bool mosso = false;
+            if(player_nr == 1){
+                if(history->table[i][j] == piece::X){
+                    if(mosso == false)
+                        mosso = p_muovi(i,j,piece::X,piece::O);
+                    if(mosso == false)
+                        mosso = p_muovi(i,j,piece::X);
+                }else if(history->table[i][j] == piece::x){
+                    if(mosso == false)
+                        mosso = p_muovi(i,j,piece::x,piece::O);
+                    if(mosso == false)
+                        mosso = p_muovi(i,j,piece::x,piece::o);
+                    if(mosso == false)
+                        mosso = p_muovi(i,j,piece::x);
+                }
+            }else{
+                if(history->table[i][j] == piece::O){
+                    if(mosso == false)
+                        mosso = p_muovi(i,j,piece::O,piece::X);
+                    if(mosso == false)
+                        mosso = p_muovi(i,j,piece::O);
+                }else if(history->table[i][j] == piece::o){
+                    if(mosso == false)
+                        mosso = p_muovi(i,j,piece::o,piece::X);
+                    if(mosso == false)
+                        mosso = p_muovi(i,j,piece::o,piece::x);
+                    if(mosso == false)
+                        mosso = p_muovi(i,j,piece::o);
+                }
+            }
+    
+    return mosso;
+}
+
+bool Player::Impl::muovi_r(){
+    bool mosso = false;
+    int nPezzi = 0;
+    for(int i=0; i<8; i++){
+        for(int j=0; j<8; j++){
+            if(player_nr == 1){
+                if(history->table[i][j] == piece::X || history->table[i][j] == piece::x){
+                    nPezzi++;
+                }
+            }else{
+                if(history->table[i][j] == piece::O || history->table[i][j] == piece::o){
+                    nPezzi++;
+                }
+            }
+        }
+    }
+
+    if(nPezzi == 0){
+        //FUNZIONE CHE PERDE
+    }else{
+        while(mosso == false){
+        srand(time(NULL));
+        nPezzi++;
+        int r = rand() % nPezzi + 1;
+        std::cout<< "random:" << r << std::endl;
+        int count = 1;
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                if(player_nr == 1){
+                    if(history->table[i][j] == piece::X || history->table[i][j] == piece::x){
+                        if(count == r)
+                            mosso = muovi(i,j);
+                        count++;
+                    }
+                }else{
+                    if(history->table[i][j] == piece::O || history->table[i][j] == piece::o){
+                        if(count == r)
+                            mosso = muovi(i,j);
+                    count++;
+                    }
+                }
+            }
+        }
         }
     }
     return mosso;
@@ -425,458 +634,15 @@ void Player::move(){
         }
     }
 
-    mosso = pimpl->mangia(); 
-    /*if(pimpl->player_nr == 1){
-        for(int i=0; i<8; i++){
-            for(int j=0; j<8; j++){
-                if(i == 0){
-                    if(j == 0){
-                        if(pimpl->history->table[i][j] == piece::X){
-                            if(pimpl->history->table[i+1][j+1] == piece::O && pimpl->history->table[i+2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j+1] = piece::e;
-                                pimpl->history->table[i+2][j+2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j+1] == piece::o && pimpl->history->table[i+2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j+1] = piece::e;
-                                pimpl->history->table[i+2][j+2] = piece::X;
-                                mosso = true;
-                            }
-                        }
-                    }else if(j == 7){
-                        if(pimpl->history->table[i][j] == piece::X){
-                            if(pimpl->history->table[i+1][j-1] == piece::O && pimpl->history->table[i+2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j-1] = piece::e;
-                                pimpl->history->table[i+2][j-2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j-1] == piece::o && pimpl->history->table[i+2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j-1] = piece::e;
-                                pimpl->history->table[i+2][j-2] = piece::X;
-                                mosso = true; 
-                            }
-                        }
-                    }else{
-                        if(pimpl->history->table[i][j] == piece::X){
-                            if(pimpl->history->table[i+1][j-1] == piece::O && pimpl->history->table[i+2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j-1] = piece::e;
-                                pimpl->history->table[i+2][j-2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j+1] == piece::O && pimpl->history->table[i+2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j+1] = piece::e;
-                                pimpl->history->table[i+2][j+2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j-1] == piece::o && pimpl->history->table[i+2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j-1] = piece::e;
-                                pimpl->history->table[i+2][j-2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j+1] == piece::o && pimpl->history->table[i+2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j+1] = piece::e;
-                                pimpl->history->table[i+2][j+2] = piece::X;
-                                mosso = true;
-                            }
-                        }
-                    }
-                }else if(i == 7){
-                     if(j == 0){
-                        if(pimpl->history->table[i][j] == piece::X){
-                            if(pimpl->history->table[i-1][j+1] == piece::O && pimpl->history->table[i-2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::X;
-                                mosso = true;
-                            }
-                        }else if(pimpl->history->table[i][j] == piece::x){
-                            if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::x;
-                                mosso = true;
-                            }
-                        }
-                    }else if(j == 7){
-                        if(pimpl->history->table[i][j] == piece::X){
-                            if(pimpl->history->table[i-1][j-1] == piece::O && pimpl->history->table[i-2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::X;
-                                mosso = true;
-                            }
-                        }else if(pimpl->history->table[i][j] == piece::x){
-                            if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::x;
-                                mosso = true; 
-                            }
-                        }
-                    }else{
-                        if(pimpl->history->table[i][j] == piece::X){
-                            if(pimpl->history->table[i-1][j-1] == piece::O && pimpl->history->table[i-2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j+1] == piece::O && pimpl->history->table[i-2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::X; 
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::X; 
-                                mosso = true;
-                            }
-                        }else if(pimpl->history->table[i][j] == piece::x){
-                            if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::x; 
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::x; 
-                                mosso = true;
-                            }
-                        }
-                    }
-                }else{
-                    if(j == 0){
-                        if(pimpl->history->table[i][j] == piece::X){
-                            if(pimpl->history->table[i-1][j+1] == piece::O && pimpl->history->table[i-2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j+1] == piece::O && pimpl->history->table[i+2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j+1] = piece::e;
-                                pimpl->history->table[i+2][j+2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::X; 
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j+1] == piece::o && pimpl->history->table[i+2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j+1] = piece::e;
-                                pimpl->history->table[i+2][j+2] = piece::X; 
-                                mosso = true;
-                            }
-                        }else if(pimpl->history->table[i][j] == piece::x){
-                            if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::x; 
-                                mosso = true;
-                            }
-                        }
-                    }else if(j == 7){
-                        if(pimpl->history->table[i][j] == piece::X){
-                            if(pimpl->history->table[i-1][j-1] == piece::O && pimpl->history->table[i-2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j-1] == piece::O && pimpl->history->table[i+2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j-1] = piece::e;
-                                pimpl->history->table[i+2][j-2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j-1] == piece::o && pimpl->history->table[i+2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j-1] = piece::e;
-                                pimpl->history->table[i+2][j-2] = piece::X; 
-                                mosso = true;
-                            }
-                        }else if(pimpl->history->table[i][j] == piece::x){
-                            if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::x; 
-                                mosso = true;
-                            }
-                        }
-                    }else{
-                        if(pimpl->history->table[i][j] == piece::X){
-                            if(pimpl->history->table[i-1][j-1] == piece::O && pimpl->history->table[i-2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j+1] == piece::O && pimpl->history->table[i-2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j-1] == piece::O && pimpl->history->table[i+2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j-1] = piece::e;
-                                pimpl->history->table[i+2][j-2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j+1] == piece::O && pimpl->history->table[i+2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j+1] = piece::e;
-                                pimpl->history->table[i+2][j+2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j-1] == piece::o && pimpl->history->table[i+2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j-1] = piece::e;
-                                pimpl->history->table[i+2][j-2] = piece::X;
-                                mosso = true;
-                            }else if(pimpl->history->table[i+1][j+1] == piece::o && pimpl->history->table[i+2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i+1][j+1] = piece::e;
-                                pimpl->history->table[i+2][j+2] = piece::X;
-                                mosso = true;
-                            }
-                        }else if(pimpl->history->table[i][j] == piece::x){
-                            if(pimpl->history->table[i-1][j-1] == piece::o && pimpl->history->table[i-2][j-2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j-1] = piece::e;
-                                pimpl->history->table[i-2][j-2] = piece::x; 
-                                mosso = true;
-                            }else if(pimpl->history->table[i-1][j+1] == piece::o && pimpl->history->table[i-2][j+2] == piece::e){
-                                pimpl->history->table[i][j] = piece::e;
-                                pimpl->history->table[i-1][j+1] = piece::e;
-                                pimpl->history->table[i-2][j+2] = piece::x;
-                                mosso = true; 
-                            }
-                        }
-                    }
-                }
-                while(mosso == false){
-                    int nPezzi = 0;
-                    for(int k=0; k<8; k++){
-                        for(int l=0; l<8; l++){
-                            if(pimpl->history->table[k][l] == piece::X || pimpl->history->table[k][l] == piece::x){
-                                nPezzi++;
-                            }
-                        }
-                    }
-                    if(nPezzi == 0){
-                        //FUNZIONE CHE PERDE
-                    }else{
-                        srand(time(NULL));
-                        nPezzi++;
-                        int r = rand() % nPezzi + 1;
-                        std::cout<< r << std::endl;
-                        int count = 1;
-                        for(int i=0; i<8; i++){
-                            for(int j=0; j<8; j++){
-                                if(pimpl->history->table[i][j] == piece::X || pimpl->history->table[i][j] == piece::x){
-                                    if(count == r){
-                                        if(i == 0){
-                                            if(j == 0){
-                                                if(pimpl->history->table[i][j] == piece::X){
-                                                    if(pimpl->history->table[i+1][j+1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i+1][j+1] = piece::X;
-                                                        mosso = true;
-                                                    }
-                                                }
-                                            }else if(j == 7){
-                                                if(pimpl->history->table[i][j] == piece::X){
-                                                    if(pimpl->history->table[i+1][j-1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i+1][j-1] = piece::X;
-                                                        mosso = true;
-                                                    }
-                                                }
-                                            }else{
-                                                if(pimpl->history->table[i][j] == piece::X){
-                                                    if(pimpl->history->table[i+1][j-1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i+1][j-1] = piece::X;
-                                                        mosso = true;
-                                                    }else if(pimpl->history->table[i+1][j+1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i+1][j+1] = piece::X;
-                                                        mosso = true;
-                                                    }
-                                                }
-                                            }
-                                        }else if(i == 7){
-                                            if(j == 0){
-                                                if(pimpl->history->table[i][j] == piece::X){
-                                                    if(pimpl->history->table[i-1][j+1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j+1] = piece::X;
-                                                        mosso = true;
-                                                    }
-                                                }else if(pimpl->history->table[i][j] == piece::x){
-                                                    if(pimpl->history->table[i-1][j+1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j+1] = piece::x;
-                                                        mosso = true;
-                                                    }
-                                                }
-                                            }else if(j == 7){
-                                                if(pimpl->history->table[i][j] == piece::X){
-                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j-1] = piece::X;
-                                                        mosso = true;
-                                                    }
-                                                }else if(pimpl->history->table[i][j] == piece::x){
-                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j-1] = piece::x;
-                                                        mosso = true; 
-                                                    }
-                                                }
-                                            }else{
-                                                if(pimpl->history->table[i][j] == piece::X){
-                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j-1] = piece::X;
-                                                        mosso = true;
-                                                    }else if(pimpl->history->table[i-1][j+1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j+1] = piece::X;
-                                                        mosso = true;
-                                                    }
-                                                }else if(pimpl->history->table[i][j] == piece::x){
-                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j-1] = piece::x;
-                                                        pimpl->history->table[i-2][j-2] = piece::x; 
-                                                        mosso = true;
-                                                    }else if(pimpl->history->table[i-1][j+1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j+1] = piece::x;
-                                                        mosso = true;
-                                                    }
-                                                }
-                                            }
-                                        }else{
-                                            if(j == 0){
-                                                if(pimpl->history->table[i][j] == piece::X){
-                                                    if(pimpl->history->table[i-1][j+1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j+1] = piece::X;
-                                                        mosso = true;
-                                                    }else if(pimpl->history->table[i+1][j+1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i+1][j+1] = piece::X;
-                                                        mosso = true;
-                                                    }
-                                                }else if(pimpl->history->table[i][j] == piece::x){
-                                                    if(pimpl->history->table[i-1][j+1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j+1] = piece::x;
-                                                        mosso = true;
-                                                    }
-                                                }
-                                            }else if(j == 7){
-                                                if(pimpl->history->table[i][j] == piece::X){
-                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j-1] = piece::X;
-                                                        mosso = true;
-                                                    }else if(pimpl->history->table[i+1][j-1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i+1][j-1] = piece::X;
-                                                        mosso = true;
-                                                    }
-                                                }else if(pimpl->history->table[i][j] == piece::x){
-                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j-1] = piece::x;
-                                                        mosso = true;
-                                                    }
-                                                }
-                                            }else{
-                                                if(pimpl->history->table[i][j] == piece::X){
-                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j-1] = piece::X;
-                                                        mosso = true;
-                                                    }else if(pimpl->history->table[i-1][j+1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j+1] = piece::X;
-                                                        mosso = true;
-                                                    }else if(pimpl->history->table[i+1][j-1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i+1][j-1] = piece::X;
-                                                        mosso = true;
-                                                    }else if(pimpl->history->table[i+1][j+1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i+1][j+1] = piece::X;
-                                                        mosso = true;
-                                                    }
-                                                }else if(pimpl->history->table[i][j] == piece::x){
-                                                    if(pimpl->history->table[i-1][j-1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j-1] = piece::x;
-                                                        mosso = true;
-                                                    }else if(pimpl->history->table[i-1][j+1] == piece::e){
-                                                        pimpl->history->table[i][j] = piece::e;
-                                                        pimpl->history->table[i-1][j+1] = piece::x;
-                                                        mosso = true; 
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    count++;
-                                }
-                            }
-                        }
-                    }
-                    
-                }
-            }
-        }
-        for(int j=0; j<8; j++){
-            if(pimpl->history->table[0][j] == piece::x){
-                pimpl->history->table[0][j] = piece::X;
-            }
-        }
-    }else{
-        //CONTINUARE PER GIOCATORE 2
-    }*/
-
-
+    if(mosso == false)
+        mosso = pimpl->m_promuovi();
+    if(mosso == false)
+        mosso = pimpl->mangia();
+    if(mosso == false)
+        mosso = pimpl->muovi_r();
+ 
+    pimpl->promuovi();
+              
 }
 
 /**
@@ -902,6 +668,9 @@ Player p;
 p.load_board("scacchiera.txt");
 p.move();
 p.store_board("scacchiera2.txt");
+
+
+
 
   std::cout << "Tutto apposto bro" << std::endl;
     return 0;
