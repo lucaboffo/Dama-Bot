@@ -89,10 +89,6 @@ public:
 	 */
 	int recurrence() const;
 
-	//ATTENZIONE ELIMINARE SUCCESSIVAMENTE LE PROSSIME FUNZIONI->USO DI PROVA
-	int getPlayer_nr();
-
-	void printScacchiera();
 	
 private:
 

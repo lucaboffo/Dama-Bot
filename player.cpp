@@ -31,7 +31,7 @@ struct Player::Impl{
 
     bool muovi(int i, int j);
 
-    bool muovi_r();
+    bool muovi_rand();
 };
 
 void Player::Impl::prepend(List& t){
@@ -384,7 +384,7 @@ bool Player::Impl::muovi(int i, int j){
     return mosso;
 }
 
-bool Player::Impl::muovi_r(){
+bool Player::Impl::muovi_rand(){
     bool mosso = false;
     int nPezzi = 0;
     for(int i=0; i<8; i++){
@@ -408,7 +408,6 @@ bool Player::Impl::muovi_r(){
         srand(time(NULL));
         nPezzi++;
         int r = rand() % nPezzi + 1;
-        std::cout<< "random:" << r << std::endl;
         int count = 1;
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
@@ -466,12 +465,12 @@ Player::piece Player::operator()(int r,int c,int history_offset) const{
         throw player_exception{player_exception::index_out_of_bounds,string{"Parametri non presenti in memoria!"}};
     }else{
        int sum = 0;
-       while(pCell != nullptr){
+       while(pimpl->history != nullptr){
            if(sum == history_offset){
-               p = pCell->table[r][c];
+               p = pimpl->history->table[r][c];
            }
            sum++;
-           pCell = pCell->next;
+           pimpl->history = pimpl->history->next;
        }
        if(history_offset >= sum){
            throw player_exception{player_exception::index_out_of_bounds,string{"Parametri non presenti in memoria!"}};
@@ -639,35 +638,58 @@ void Player::move(){
     if(mosso == false)
         mosso = pimpl->mangia();
     if(mosso == false)
-        mosso = pimpl->muovi_r();
+        mosso = pimpl->muovi_rand();
  
     pimpl->promuovi();
+
+    if(mosso == false){
+        //FUNZIONE CHE PERDE
+    }
+
+    if(pimpl->history == nullptr){
+        throw player_exception{player_exception::index_out_of_bounds,string{"History vuota!"}};
+    }
               
 }
 
-/**
- * Funzioni aggiuntive
- */
-int Player::getPlayer_nr(){
-    return pimpl->player_nr;
+bool Player::valid_move()const{
+    bool valid = false;
+    if(pimpl->history == nullptr){
+        throw player_exception{player_exception::index_out_of_bounds,string{"History vuota!"}};
+    }
+
+    if(pimpl->history->next == nullptr){
+        throw player_exception{player_exception::index_out_of_bounds,string{"Ci sono meno di due scacchiere nella history!"}};
+    }
+    int i=0;
+    while(i < 8 || valid == true){
+        int j=0;
+        while(j < 8 || valid == true){
+                if(pimpl->history->table[i][j] != pimpl->history->next->table[i][j]){
+                    valid = true;
+                }
+            j++;
+        }
+        i++;
+    }
+
+    if(valid == true){
+        
+    }
+    return valid;
 }
 
-void Player::printScacchiera(){
-    for(int i=0; i<8; i++){
-        for(int j=0; j<8; j++){
-            std::cout << pimpl->history->table[i][j] << '\t';
-        }
-        std::cout << std::endl;
-    }
-}
 
 
 int main(){
 
 Player p;
-p.load_board("scacchiera.txt");
+
+p.init_board("board.txt");
 p.move();
-p.store_board("scacchiera2.txt");
+
+std::cout << p(7,7,1) << std::endl;
+
 
 
 
