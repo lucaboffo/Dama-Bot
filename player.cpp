@@ -654,6 +654,7 @@ void Player::move(){
 
 bool Player::valid_move()const{
     bool valid = false;
+    bool control = false;
     if(pimpl->history == nullptr){
         throw player_exception{player_exception::index_out_of_bounds,string{"History vuota!"}};
     }
@@ -674,8 +675,38 @@ bool Player::valid_move()const{
     }
 
     if(valid == true){
-        
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                if(pimpl->history->next->table[i][j] != pimpl->history->table[i][j]){
+                    if(pimpl->history->table[i][j] == piece::e){
+                        if(pimpl->history->table[i+1][j+1] == pimpl->history->next->table[i][j]){
+                            if(pimpl->history->table[i+1][j+1] != pimpl->history->next->table[i+1][j+1]){
+                                control = true;
+                            }
+                        }else if(pimpl->history->table[i+1][j-1] == pimpl->history->next->table[i][j]){
+                            if(pimpl->history->table[i+1][j-1] != pimpl->history->next->table[i+1][j-1]){
+                                control = true;
+                            }
+                        }else if(pimpl->history->table[i-1][j+1] == pimpl->history->next->table[i][j]){
+                            if(pimpl->history->table[i-1][j+1] != pimpl->history->next->table[i-1][j+1]){
+                                control = true;
+                            }
+                        }else if(pimpl->history->table[i-1][j-1] == pimpl->history->next->table[i][j]){
+                            if(pimpl->history->table[i-1][j-1] != pimpl->history->next->table[i-1][j-1]){
+                                control = true;
+                            }
+                        }
+                        if(control == false){
+                            //controllo se è stata mangiata
+                        }
+                    }else if(pimpl->history->next->table[i][j] == piece::e){
+
+                    }
+                }
+            }
+        }
     }
+    std::cout << control << std::endl;
     return valid;
 }
 
@@ -685,12 +716,9 @@ int main(){
 
 Player p;
 
-p.init_board("board.txt");
-p.move();
-
-std::cout << p(7,7,1) << std::endl;
-
-
+p.load_board("board.txt");
+p.load_board("board copy.txt");
+p.valid_move();
 
 
 
