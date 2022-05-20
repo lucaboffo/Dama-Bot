@@ -32,6 +32,8 @@ struct Player::Impl{
     bool muovi(int i, int j);
 
     bool muovi_rand();
+
+    bool is_equal(piece table[8][8]);
 };
 
 void Player::Impl::prepend(List& t){
@@ -431,6 +433,22 @@ bool Player::Impl::muovi_rand(){
     return mosso;
 }
 
+bool Player::Impl::is_equal(piece table[8][8]){
+    bool eq = true;
+    int i = 0;
+    while(i < 0 || eq == false){
+        int j = 0;
+        while(j < 8 || eq == false){
+            if(this->history->table[i][j] != table[i][j]){
+                eq = false;
+            }
+            j++;
+        }
+        i++;
+    }
+    return eq;
+}
+
 Player::Player(int player_nr){
     pimpl = new Impl;
     pimpl->history = nullptr;
@@ -654,7 +672,6 @@ void Player::move(){
 
 bool Player::valid_move()const{
     bool valid = false;
-    bool control = false;
     if(pimpl->history == nullptr){
         throw player_exception{player_exception::index_out_of_bounds,string{"History vuota!"}};
     }
@@ -662,51 +679,47 @@ bool Player::valid_move()const{
     if(pimpl->history->next == nullptr){
         throw player_exception{player_exception::index_out_of_bounds,string{"Ci sono meno di due scacchiere nella history!"}};
     }
-    int i=0;
-    while(i < 8 || valid == true){
-        int j=0;
-        while(j < 8 || valid == true){
-                if(pimpl->history->table[i][j] != pimpl->history->next->table[i][j]){
-                    valid = true;
-                }
-            j++;
-        }
-        i++;
-    }
-
-    if(valid == true){
+    if(pimpl->is_equal(pimpl->history->next->table)){
+        valid = false;
+    }else{ 
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
                 if(pimpl->history->next->table[i][j] != pimpl->history->table[i][j]){
                     if(pimpl->history->table[i][j] == piece::e){
                         if(pimpl->history->table[i+1][j+1] == pimpl->history->next->table[i][j]){
                             if(pimpl->history->table[i+1][j+1] != pimpl->history->next->table[i+1][j+1]){
-                                control = true;
+                                valid = true;
                             }
                         }else if(pimpl->history->table[i+1][j-1] == pimpl->history->next->table[i][j]){
                             if(pimpl->history->table[i+1][j-1] != pimpl->history->next->table[i+1][j-1]){
-                                control = true;
+                                valid = true;
                             }
                         }else if(pimpl->history->table[i-1][j+1] == pimpl->history->next->table[i][j]){
                             if(pimpl->history->table[i-1][j+1] != pimpl->history->next->table[i-1][j+1]){
-                                control = true;
+                                valid = true;
                             }
                         }else if(pimpl->history->table[i-1][j-1] == pimpl->history->next->table[i][j]){
                             if(pimpl->history->table[i-1][j-1] != pimpl->history->next->table[i-1][j-1]){
-                                control = true;
+                                valid = true;
                             }
                         }
-                        if(control == false){
+                        if(valid == false){
                             //controllo se è stata mangiata
+                            if(pimpl->history->table[i+1][j+1] == pimpl->history->next->table[i-1][j-1]){
+                                valid = true;
+                            }else if(pimpl->history->table[i+1][j-1] == pimpl->history->next->table[i-1][j+1]){
+                                valid = true;
+                            }else if(pimpl->history->table[i-1][j-1] == pimpl->history->next->table[i+1][j+1]){
+                                valid = true;
+                            }else if(pimpl->history->table[i-1][j+1] == pimpl->history->next->table[i+1][j-1]){
+                                valid = true;
+                            }
                         }
-                    }else if(pimpl->history->next->table[i][j] == piece::e){
-
                     }
                 }
             }
         }
     }
-    std::cout << control << std::endl;
     return valid;
 }
 
@@ -718,7 +731,7 @@ Player p;
 
 p.load_board("board.txt");
 p.load_board("board copy.txt");
-p.valid_move();
+std::cout << p.valid_move() << std::endl;
 
 
 
