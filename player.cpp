@@ -1,4 +1,5 @@
 #include "player.hpp"
+
 struct Player::Impl{
     int player_nr;
     struct Cell{
@@ -130,7 +131,7 @@ void Player::Impl::promuovi(){
 bool Player::Impl::mangia_su_sinistra(int i, int j, int mangia, int da_mangiare){
     bool mosso = false;
     if(history->table[i][j] == mangia){
-        if(history->table[i-1][j-1] == da_mangiare && history->table[i-2][j-2] == piece::e){
+        if(history->table[i][j] != piece::o && history->table[i-1][j-1] == da_mangiare && (i-2) >= 0 && (j-2) >= 0 && history->table[i-2][j-2] == piece::e){
             history->table[i][j] = piece::e;
             history->table[i-1][j-1] = piece::e;
             history->table[i-2][j-2] = (piece)mangia;
@@ -143,7 +144,7 @@ bool Player::Impl::mangia_su_sinistra(int i, int j, int mangia, int da_mangiare)
 bool Player::Impl::mangia_su_destra(int i, int j, int mangia, int da_mangiare){
     bool mosso = false;
     if(history->table[i][j] == mangia){
-        if(history->table[i-1][j+1] == da_mangiare && history->table[i-2][j+2] == piece::e){
+        if(history->table[i][j] != piece::o && history->table[i-1][j+1] == da_mangiare && (i-2) >= 0 && (j+2) <= 7 && history->table[i-2][j+2] == piece::e){
             history->table[i][j] = piece::e;
             history->table[i-1][j+1] = piece::e;
             history->table[i-2][j+2] = (piece)mangia;
@@ -156,7 +157,7 @@ bool Player::Impl::mangia_su_destra(int i, int j, int mangia, int da_mangiare){
 bool Player::Impl::mangia_giu_sinistra(int i, int j, int mangia, int da_mangiare){
     bool mosso = false;
     if(history->table[i][j] == mangia){
-        if(history->table[i+1][j-1] == da_mangiare && history->table[i+2][j-2] == piece::e){
+        if(history->table[i][j] != piece::x && history->table[i+1][j-1] == da_mangiare && (i+2) <= 7 && (j-2) >= 0 && history->table[i+2][j-2] == piece::e){
             history->table[i][j] = piece::e;
             history->table[i+1][j-1] = piece::e;
             history->table[i+2][j-2] = (piece)mangia;
@@ -169,7 +170,7 @@ bool Player::Impl::mangia_giu_sinistra(int i, int j, int mangia, int da_mangiare
 bool Player::Impl::mangia_giu_destra(int i, int j, int mangia, int da_mangiare){
     bool mosso = false;
     if(history->table[i][j] == mangia){
-        if(history->table[i+1][j+1] == da_mangiare && history->table[i-2][j+2] == piece::e){
+        if(history->table[i][j] != piece::x && history->table[i+1][j+1] == da_mangiare && (i+2) <= 7 && (j+2) <= 7  && history->table[i+2][j+2] == piece::e){
             history->table[i][j] = piece::e;
             history->table[i+1][j+1] = piece::e;
             history->table[i+2][j+2] = (piece)mangia;
@@ -259,7 +260,7 @@ bool Player::Impl::mangia(){
 bool Player::Impl::muovi_su_sinistra(int i, int j, int da_muovere, int predatore){
     bool mosso = false;
     if(history->table[i][j] == da_muovere){
-        if(history->table[i-1][j-1] == piece::e && history->table[i-2][j-2] != predatore){
+        if(history->table[i][j] != piece::o && history->table[i-1][j-1] == piece::e && history->table[i-2][j-2] != predatore){
             history->table[i][j] = piece::e;
             history->table[i-1][j-1] = (piece)da_muovere;
             mosso = true;
@@ -271,7 +272,7 @@ bool Player::Impl::muovi_su_sinistra(int i, int j, int da_muovere, int predatore
 bool Player::Impl::muovi_su_destra(int i, int j, int da_muovere, int predatore){
     bool mosso = false;
     if(history->table[i][j] == da_muovere){
-        if(history->table[i-1][j+1] == piece::e && history->table[i-2][j+2] != predatore){
+        if(history->table[i][j] != piece::o && history->table[i-1][j+1] == piece::e && history->table[i-2][j+2] != predatore){
             history->table[i][j] = piece::e;
             history->table[i-1][j+1] = (piece)da_muovere;
             mosso = true;
@@ -283,7 +284,7 @@ bool Player::Impl::muovi_su_destra(int i, int j, int da_muovere, int predatore){
 bool Player::Impl::muovi_giu_sinistra(int i, int j, int da_muovere, int predatore){
     bool mosso = false;
     if(history->table[i][j] == da_muovere){
-        if(history->table[i+1][j-1] == piece::e && history->table[i+2][j-2] != predatore){
+        if(history->table[i][j] != piece::x && history->table[i+1][j-1] == piece::e && history->table[i+2][j-2] != predatore){
             history->table[i][j] = piece::e;
             history->table[i+1][j-1] = (piece)da_muovere;
             mosso = true;
@@ -295,7 +296,7 @@ bool Player::Impl::muovi_giu_sinistra(int i, int j, int da_muovere, int predator
 bool Player::Impl::muovi_giu_destra(int i, int j, int da_muovere, int predatore){
     bool mosso = false;
     if(history->table[i][j] == da_muovere){
-        if(history->table[i+1][j+1] == piece::e && history->table[i+2][j+2] != predatore){
+        if(history->table[i][j] != piece::x && history->table[i+1][j+1] == piece::e && history->table[i+2][j+2] != predatore){
             history->table[i][j] = piece::e;
             history->table[i+1][j+1] = (piece)da_muovere;
             mosso = true;
@@ -311,41 +312,84 @@ bool Player::Impl::p_muovi(int i, int j, int da_muovere, int predatore){
                 if(mosso == false)
                     mosso = muovi_giu_destra(i,j,da_muovere,predatore);
                 }else{
-                    if(mosso == false)
-                        mosso = muovi_giu_destra(i,j,da_muovere,predatore);
-                    if(mosso == false)
-                        mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                    bool cond1 = false, cond2 = false;
+                    while((!cond1 || !cond2) && mosso == false){
+                        srand(time(NULL));
+                        int r = rand()%2;
+                        if(r == 0){
+                            mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                            cond1 = true;
+                        }else if(r == 1){
+                            mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                            cond2 = true;
+                        }
+                    }
+                    
                 }
             }else if(i == 7){
                 if(j == 7){
                     if(mosso == false)
                         mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
                 }else{
-                    if(mosso == false)
-                        mosso = muovi_su_destra(i,j,da_muovere,predatore);
-                    if(mosso == false)
-                        mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
+                   bool cond1 = false, cond2 = false;
+                    while((!cond1 || !cond2) && mosso == false){
+                        srand(time(NULL));
+                        int r = rand()%2;
+                        if(r == 0){
+                            mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                            cond1 = true;
+                        }else if(r == 1){
+                            mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
+                            cond2 = true;
+                        }
+                    }
                 }
             }else{
                 if(j == 0){
-                    if(mosso == false)
-                        mosso = muovi_su_destra(i,j,da_muovere,predatore);
-                    if(mosso == false)
-                        mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                    bool cond1 = false, cond2 = false;
+                    while((!cond1 || !cond2) && mosso == false){
+                        srand(time(NULL));
+                        int r = rand()%2;
+                        if(r == 0){
+                            mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                            cond1 = true;
+                        }else if(r == 1){
+                            mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                            cond2 = true;
+                        }
+                    }
                 }else if(j == 7){
-                    if(mosso == false)
-                        mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
-                    if(mosso == false)
-                        mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                    bool cond1 = false, cond2 = false;
+                    while((!cond1 || !cond2) && mosso == false){
+                        srand(time(NULL));
+                        int r = rand()%2;
+                        if(r == 0){
+                            mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                            cond1 = true;
+                        }else if(r == 1){
+                            mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                            cond2 = true;
+                        }
+                    }
                 }else{
-                    if(mosso == false)
-                        mosso = muovi_su_destra(i,j,da_muovere,predatore);
-                    if(mosso == false)
-                        mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
-                    if(mosso == false)
-                        mosso = muovi_giu_destra(i,j,da_muovere,predatore);
-                    if(mosso == false)
-                        mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                    bool cond1 = false, cond2 = false, cond3 = false, cond4 = false;
+                    while((!cond1 || !cond2 || !cond3 || !cond4) && mosso == false){
+                        srand(time(NULL));
+                        int r = rand()%4;
+                        if(r == 0){
+                            mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                            cond1 = true;
+                        }else if(r == 1){
+                            mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                            cond2 = true;
+                        }else if(r == 2){
+                            mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
+                            cond3 = true;
+                        }else if(r == 3){
+                            mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
+                            cond4 = true;
+                        }
+                    }
                 }
             }
             return mosso;    
@@ -541,12 +585,13 @@ void Player::store_board(const string& filename, int history_offset)const{
     if(!output.good()){
          throw player_exception{player_exception::missing_file,string{"File di output " + filename + " non è scrivibile"}};
     }
+    Player::Impl::List pCell = pimpl->history;
     int sum = 0;
-    while(pimpl->history != nullptr){
+    while(pCell != nullptr){
         if(sum == history_offset){
             for(int i=0; i<8; i++){
                 for(int j=0; j<8; j++){
-                    switch(pimpl->history->table[i][j]){
+                    switch(pCell->table[i][j]){
                         case piece::x:
                         output << 'x';
                         break;
@@ -572,7 +617,7 @@ void Player::store_board(const string& filename, int history_offset)const{
             }
         }
         sum++;
-        pimpl->history = pimpl->history->next;
+        pCell = pCell->next;
     }
     if(history_offset >= sum){
            throw player_exception{player_exception::index_out_of_bounds,string{"Parametri non presenti in memoria!"}};
@@ -660,10 +705,6 @@ void Player::move(){
  
     pimpl->promuovi();
 
-    if(mosso == false){
-        //FUNZIONE CHE PERDE
-    }
-
     if(pimpl->history == nullptr){
         throw player_exception{player_exception::index_out_of_bounds,string{"History vuota!"}};
     }
@@ -723,21 +764,103 @@ bool Player::valid_move()const{
     return valid;
 }
 
+void Player::pop(){
+    Player::Impl::List pCell;
+    if(pimpl->history == nullptr)
+         throw player_exception{player_exception::index_out_of_bounds,string{"History vuota!"}};
 
+    pCell = pimpl->history;
+    pimpl->history = pimpl->history->next;
+    delete pCell;
+}
+
+bool Player::wins(int player_nr) const{
+    bool control = false;
+    if(pimpl->history == nullptr)
+         throw player_exception{player_exception::index_out_of_bounds,string{"History vuota!"}};
+    if(player_nr != 1 && player_nr != 2)
+         throw player_exception{player_exception::index_out_of_bounds,string{"Giocatore non valido!"}};
+    int count = 0;
+    for(int i=0; i<8; i++){
+        for(int j=0; j<8; j++){
+            if(player_nr == 1){
+                if(pimpl->history->table[i][j] == piece::o || pimpl->history->table[i][j] == piece::O){
+                    count++;
+                }
+            }else{
+                if(pimpl->history->table[i][j] == piece::x || pimpl->history->table[i][j] == piece::X){
+                    count++;
+                }
+            }
+        }
+    }
+    if(count == 0)
+        control = true;
+    return control;
+}
+
+bool Player::wins() const{
+    bool control = false;
+    if(pimpl->history == nullptr)
+         throw player_exception{player_exception::index_out_of_bounds,string{"History vuota!"}};
+    int count = 0;
+    for(int i=0; i<8; i++){
+        for(int j=0; j<8; j++){
+            if(pimpl->player_nr == 1){
+                if(pimpl->history->table[i][j] == piece::o || pimpl->history->table[i][j] == piece::O){
+                    count++;
+                }
+            }else{
+                if(pimpl->history->table[i][j] == piece::x || pimpl->history->table[i][j] == piece::X){
+                    count++;
+                }
+            }
+        }
+    }
+    if(count == 0)
+        control = true;
+    return control;
+}
+
+bool Player::loses(int player_nr)const{
+    if(pimpl->history == nullptr)
+         throw player_exception{player_exception::index_out_of_bounds,string{"History vuota!"}};
+    if(player_nr != 1 && player_nr != 2)
+         throw player_exception{player_exception::index_out_of_bounds,string{"Giocatore non valido!"}};
+    return !wins(player_nr);
+}
+
+bool Player::loses()const{
+    if(pimpl->history == nullptr)
+         throw player_exception{player_exception::index_out_of_bounds,string{"History vuota!"}};
+    return !wins();
+}
 
 int main(){
+    Player p1;
+    Player p2(2);
 
-Player p;
+    p1.init_board("board1.txt");
+    int i = 1;
+    while(true){
+        p1.load_board("board" + std::to_string(i) + ".txt");
+        p1.move();
+        i++;
+        p1.store_board("board" + std::to_string(i) + ".txt");
+        p2.load_board("board" + std::to_string(i) + ".txt");
+        p2.move();
+        i++;
+        p2.store_board("board" + std::to_string(i) + ".txt");
+        if(p1.wins() || p2.wins()){
+            std::cout << "stop" << std::endl;
+            break;
+        }
+    }
 
-p.load_board("board.txt");
-p.load_board("board copy.txt");
-std::cout << p.valid_move() << std::endl;
-
-
-
-  std::cout << "Tutto apposto bro" << std::endl;
-    return 0;
 }
+
+
+
 
 
 
