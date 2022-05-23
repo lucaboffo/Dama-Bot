@@ -260,7 +260,7 @@ bool Player::Impl::mangia(){
 bool Player::Impl::muovi_su_sinistra(int i, int j, int da_muovere, int predatore){
     bool mosso = false;
     if(history->table[i][j] == da_muovere){
-        if(history->table[i][j] != piece::o && history->table[i-1][j-1] == piece::e && history->table[i-2][j-2] != predatore){
+        if(history->table[i][j] != piece::o && history->table[i-1][j-1] == piece::e && (i-2) >= 0 && (j-2) >= 0 && history->table[i-2][j-2] != predatore){
             history->table[i][j] = piece::e;
             history->table[i-1][j-1] = (piece)da_muovere;
             mosso = true;
@@ -272,7 +272,7 @@ bool Player::Impl::muovi_su_sinistra(int i, int j, int da_muovere, int predatore
 bool Player::Impl::muovi_su_destra(int i, int j, int da_muovere, int predatore){
     bool mosso = false;
     if(history->table[i][j] == da_muovere){
-        if(history->table[i][j] != piece::o && history->table[i-1][j+1] == piece::e && history->table[i-2][j+2] != predatore){
+        if(history->table[i][j] != piece::o && history->table[i-1][j+1] == piece::e && (i-2) >= 0 && (j+2) <= 7 && history->table[i-2][j+2] != predatore){
             history->table[i][j] = piece::e;
             history->table[i-1][j+1] = (piece)da_muovere;
             mosso = true;
@@ -284,7 +284,7 @@ bool Player::Impl::muovi_su_destra(int i, int j, int da_muovere, int predatore){
 bool Player::Impl::muovi_giu_sinistra(int i, int j, int da_muovere, int predatore){
     bool mosso = false;
     if(history->table[i][j] == da_muovere){
-        if(history->table[i][j] != piece::x && history->table[i+1][j-1] == piece::e && history->table[i+2][j-2] != predatore){
+        if(history->table[i][j] != piece::x && history->table[i+1][j-1] == piece::e && (i+2) <= 7 && (j-2) >= 0 && history->table[i+2][j-2] != predatore){
             history->table[i][j] = piece::e;
             history->table[i+1][j-1] = (piece)da_muovere;
             mosso = true;
@@ -296,7 +296,7 @@ bool Player::Impl::muovi_giu_sinistra(int i, int j, int da_muovere, int predator
 bool Player::Impl::muovi_giu_destra(int i, int j, int da_muovere, int predatore){
     bool mosso = false;
     if(history->table[i][j] == da_muovere){
-        if(history->table[i][j] != piece::x && history->table[i+1][j+1] == piece::e && history->table[i+2][j+2] != predatore){
+        if(history->table[i][j] != piece::x && history->table[i+1][j+1] == piece::e && (i+2) <= 7 && (j+2) <= 7 && history->table[i+2][j+2] != predatore){
             history->table[i][j] = piece::e;
             history->table[i+1][j+1] = (piece)da_muovere;
             mosso = true;
@@ -312,42 +312,101 @@ bool Player::Impl::p_muovi(int i, int j, int da_muovere, int predatore){
                 if(mosso == false)
                     mosso = muovi_giu_destra(i,j,da_muovere,predatore);
                 }else{
-                
-                    if(mosso == false)
+                    bool cond1 = false, cond2 = false;
+                        srand(time(NULL));
+                        int r = rand()%2;
+                        if(r == 0){
+                            mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                            cond1 = true;
+                        }else if(r == 1){
+                            mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                            cond2 = true;
+                        }
+                    if(cond1 == false && mosso == false){
                         mosso = muovi_giu_destra(i,j,da_muovere,predatore);
-                    if(mosso == false)
+                    }else if(cond2 == false && mosso == false){
                         mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                    }    
                 }
             }else if(i == 7){
                 if(j == 7){
                     if(mosso == false)
                         mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
                 }else{
-                    if(mosso == false)
+                   bool cond1 = false, cond2 = false;
+                        srand(time(NULL));
+                        int r = rand()%2;
+                        if(r == 0){
+                            mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                            cond1 = true;
+                        }else if(r == 1){
+                            mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
+                            cond2 = true;
+                        }
+                    if(cond1 == false && mosso == false){
                         mosso = muovi_su_destra(i,j,da_muovere,predatore);
-                    if(mosso == false)
+                    }else if(cond2 == false && mosso == false){
                         mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
+                    }
                 }
             }else{
                 if(j == 0){
-                    if(mosso == false)
+                    bool cond1 = false, cond2 = false;
+                        srand(time(NULL));
+                        int r = rand()%2;
+                        if(r == 0){
+                            mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                            cond1 = true;
+                        }else if(r == 1){
+                            mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                            cond2 = true;
+                        }
+                    if(cond1 == false && mosso == false){
                         mosso = muovi_su_destra(i,j,da_muovere,predatore);
-                    if(mosso == false)
+                    }else if(cond2 == false && mosso == false){
                         mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                    }
                 }else if(j == 7){
-                    if(mosso == false)
-                        mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
-                    if(mosso == false)
-                        mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
-                }else{
-                    if(mosso == false)
+                    bool cond1 = false, cond2 = false;
+                        srand(time(NULL));
+                        int r = rand()%2;
+                        if(r == 0){
+                            mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                            cond1 = true;
+                        }else if(r == 1){
+                            mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                            cond2 = true;
+                        }
+                    if(cond1 == false && mosso == false){
                         mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                    }else if(cond2 == false && mosso == false){
+                        mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                    }
+                }else{
+                    bool cond1 = false, cond2 = false, cond3 = false, cond4 = false;
+                        srand(time(NULL));
+                        int r = rand()%4;
+                        if(r == 0){
+                            mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                            cond1 = true;
+                        }else if(r == 1){
+                            mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                            cond2 = true;
+                        }else if(r == 2){
+                            mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
+                            cond3 = true;
+                        }else if(r == 3){
+                            mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                            cond4 = true;
+                        }
+                    if(mosso == false)
+                         mosso = muovi_giu_destra(i,j,da_muovere,predatore);
+                    if(mosso == false)
+                         mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
                     if(mosso == false)
                         mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
                     if(mosso == false)
-                        mosso = muovi_giu_destra(i,j,da_muovere,predatore);
-                    if(mosso == false)
-                        mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
+                         mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
                 }
             }
             return mosso;    
@@ -404,10 +463,6 @@ bool Player::Impl::muovi_rand(){
             }
         }
     }
-
-    if(nPezzi == 0){
-        //FUNZIONE CHE PERDE
-    }else{
         while(mosso == false){
         srand(time(NULL));
         nPezzi++;
@@ -431,7 +486,7 @@ bool Player::Impl::muovi_rand(){
             }
         }
         }
-    }
+    
     return mosso;
 }
 
