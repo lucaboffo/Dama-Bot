@@ -493,9 +493,9 @@ bool Player::Impl::muovi_rand(){
 bool Player::Impl::is_equal(piece table[8][8]){
     bool eq = true;
     int i = 0;
-    while(i < 0 || eq == false){
+    while(i < 8){
         int j = 0;
-        while(j < 8 || eq == false){
+        while(j < 8){
             if(this->history->table[i][j] != table[i][j]){
                 eq = false;
             }
@@ -645,7 +645,6 @@ void Player::store_board(const string& filename, int history_offset)const{
 }
 
 void Player::init_board(const string& filename)const{
-    pimpl->prepend(pimpl->history);
     std::ofstream  output{filename};
     if(!output.good())
         throw player_exception{player_exception::missing_file,string{"File di output " + filename + " non è scrivibile"}};
@@ -653,38 +652,29 @@ void Player::init_board(const string& filename)const{
         for(int j=0; j<8; j++){
             if(i == 0 || i == 2){
                 if(j%2 == 0){
-                    pimpl->history->table[i][j] = piece::o;
                     output << 'o';
                 }else{
-                    pimpl->history->table[i][j] = piece::e;
                     output << ' ';
                 }
             }else if(i == 1){
                 if(j%2 == 1){
-                    pimpl->history->table[i][j] = piece::o;
                     output << 'o';
                 }else{
-                    pimpl->history->table[i][j] = piece::e;
                     output << ' ';
                 }
             }else if(i == 5 || i == 7){
                 if(j%2 == 1){
-                    pimpl->history->table[i][j] = piece::x;
                     output << 'x';
                 }else{
-                    pimpl->history->table[i][j] = piece::e;
                     output << ' ';
                 }
             }else if(i == 6){
                 if(j%2 == 0){
-                    pimpl->history->table[i][j] = piece::x;
                     output << 'x';
                 }else{
-                    pimpl->history->table[i][j] = piece::e;
                     output << ' ';
                 }
             }else{
-                pimpl->history->table[i][j] = piece::e;
                 output << ' ';
             } 
         }
@@ -830,8 +820,10 @@ bool Player::wins() const{
             }
         }
     }
-    if(count == 0)
+    if(count == 0){
         control = true;
+    }
+
     return control;
 }
 
@@ -860,14 +852,27 @@ int main(){
         p1.move();
         i++;
         p1.store_board("board" + std::to_string(i) + ".txt");
+        if(!p1.valid_move()){
+            std::cout << "mossa non valida p1" << std::endl;
+            break;
+        }
+        if(p1.wins()){
+           std::cout << "ha vinto p1" << std::endl;
+           break;
+       }
         p2.load_board("board" + std::to_string(i) + ".txt");
         p2.move();
         i++;
         p2.store_board("board" + std::to_string(i) + ".txt");
-        if(p1.wins() || p2.wins()){
-            std::cout << "stop" << std::endl;
+        if(!p2.valid_move()){
+            std::cout << "mossa non valida p2" << std::endl;
             break;
         }
+        if(p2.wins()){
+           std::cout << "ha vinto p2" << std::endl;
+           break;
+       }
+        
     }
 
 }
