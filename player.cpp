@@ -371,7 +371,7 @@ bool Player::Impl::p_muovi(int i, int j, int da_muovere, int predatore){
                         srand(time(NULL));
                         int r = rand()%2;
                         if(r == 0){
-                            mosso = muovi_su_destra(i,j,da_muovere,predatore);
+                            mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
                             cond1 = true;
                         }else if(r == 1){
                             mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
@@ -404,7 +404,7 @@ bool Player::Impl::p_muovi(int i, int j, int da_muovere, int predatore){
                     if(mosso == false)
                          mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
                     if(mosso == false)
-                        mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
+                        mosso = muovi_su_destra(i,j,da_muovere,predatore);
                     if(mosso == false)
                          mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
                 }
@@ -416,31 +416,41 @@ bool Player::Impl::muovi(int i, int j){
     bool mosso = false;
             if(player_nr == 1){
                 if(history->table[i][j] == piece::X){
-                    if(mosso == false)
+                    if(mosso == false){
                         mosso = p_muovi(i,j,piece::X,piece::O);
-                    if(mosso == false)
+                    }
+                    if(mosso == false){
                         mosso = p_muovi(i,j,piece::X);
+                    }
                 }else if(history->table[i][j] == piece::x){
-                    if(mosso == false)
+                    if(mosso == false){
                         mosso = p_muovi(i,j,piece::x,piece::O);
-                    if(mosso == false)
+                    }
+                    if(mosso == false){
                         mosso = p_muovi(i,j,piece::x,piece::o);
-                    if(mosso == false)
+                    }
+                    if(mosso == false){
                         mosso = p_muovi(i,j,piece::x);
+                    }
                 }
             }else{
                 if(history->table[i][j] == piece::O){
-                    if(mosso == false)
+                    if(mosso == false){
                         mosso = p_muovi(i,j,piece::O,piece::X);
-                    if(mosso == false)
+                    }
+                    if(mosso == false){
                         mosso = p_muovi(i,j,piece::O);
+                    }
                 }else if(history->table[i][j] == piece::o){
-                    if(mosso == false)
+                    if(mosso == false){
                         mosso = p_muovi(i,j,piece::o,piece::X);
-                    if(mosso == false)
+                    }
+                    if(mosso == false){
                         mosso = p_muovi(i,j,piece::o,piece::x);
-                    if(mosso == false)
+                    }
+                    if(mosso == false){
                         mosso = p_muovi(i,j,piece::o);
+                    }
                 }
             }
     
@@ -465,9 +475,10 @@ bool Player::Impl::muovi_rand(){
     }
         while(mosso == false){
         srand(time(NULL));
-        nPezzi++;
-        int r = rand() % nPezzi + 1;
-        int count = 1;
+        std::cout << "nPezzi:" << nPezzi << std::endl;
+        int r = rand() % nPezzi;
+        std::cout << "numero random:" << r << std::endl;
+        int count = 0;
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
                 if(player_nr == 1){
@@ -705,6 +716,13 @@ void Player::move(){
         mosso = pimpl->mangia();
     if(mosso == false)
         mosso = pimpl->muovi_rand();
+    if(mosso == false){
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                pimpl->history->table[i][j] = pimpl->history->next->table[i][j];
+            }
+        }
+    }
  
     pimpl->promuovi();
 
@@ -734,15 +752,18 @@ bool Player::valid_move()const{
                             if(pimpl->history->table[i+1][j+1] != pimpl->history->next->table[i+1][j+1]){
                                 valid = true;
                             }
-                        }else if(pimpl->history->table[i+1][j-1] == pimpl->history->next->table[i][j]){
+                        }
+                        if(pimpl->history->table[i+1][j-1] == pimpl->history->next->table[i][j]){
                             if(pimpl->history->table[i+1][j-1] != pimpl->history->next->table[i+1][j-1]){
                                 valid = true;
                             }
-                        }else if(pimpl->history->table[i-1][j+1] == pimpl->history->next->table[i][j]){
+                        }
+                        if(pimpl->history->table[i-1][j+1] == pimpl->history->next->table[i][j]){
                             if(pimpl->history->table[i-1][j+1] != pimpl->history->next->table[i-1][j+1]){
                                 valid = true;
                             }
-                        }else if(pimpl->history->table[i-1][j-1] == pimpl->history->next->table[i][j]){
+                        }
+                        if(pimpl->history->table[i-1][j-1] == pimpl->history->next->table[i][j]){
                             if(pimpl->history->table[i-1][j-1] != pimpl->history->next->table[i-1][j-1]){
                                 valid = true;
                             }
@@ -751,11 +772,14 @@ bool Player::valid_move()const{
                             //controllo se è stata mangiata
                             if(pimpl->history->table[i+1][j+1] == pimpl->history->next->table[i-1][j-1]){
                                 valid = true;
-                            }else if(pimpl->history->table[i+1][j-1] == pimpl->history->next->table[i-1][j+1]){
+                            }
+                            if(pimpl->history->table[i+1][j-1] == pimpl->history->next->table[i-1][j+1]){
                                 valid = true;
-                            }else if(pimpl->history->table[i-1][j-1] == pimpl->history->next->table[i+1][j+1]){
+                            }
+                            if(pimpl->history->table[i-1][j-1] == pimpl->history->next->table[i+1][j+1]){
                                 valid = true;
-                            }else if(pimpl->history->table[i-1][j+1] == pimpl->history->next->table[i+1][j-1]){
+                            }
+                            if(pimpl->history->table[i-1][j+1] == pimpl->history->next->table[i+1][j-1]){
                                 valid = true;
                             }
                         }
@@ -851,6 +875,7 @@ int main(){
         p1.load_board("board" + std::to_string(i) + ".txt");
         p1.move();
         i++;
+        std::cout << "mossa p1 " << i << std::endl; 
         p1.store_board("board" + std::to_string(i) + ".txt");
         if(!p1.valid_move()){
             std::cout << "mossa non valida p1" << std::endl;
@@ -863,8 +888,9 @@ int main(){
         p2.load_board("board" + std::to_string(i) + ".txt");
         p2.move();
         i++;
+        std::cout << "mossa p2 " << i << std::endl; 
         p2.store_board("board" + std::to_string(i) + ".txt");
-        if(!p2.valid_move()){
+        if(!p2.valid_move()){//problema
             std::cout << "mossa non valida p2" << std::endl;
             break;
         }
@@ -876,6 +902,7 @@ int main(){
     }
 
 }
+
 
 
 
