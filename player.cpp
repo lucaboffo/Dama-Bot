@@ -34,7 +34,9 @@ struct Player::Impl{
 
     bool muovi_rand();
 
-    bool is_equal(piece table[8][8]);
+    bool is_equal(piece source[8][8], piece dest[8][8]);
+
+    void copyBoard(piece source[8][8], piece dest[8][8]);
 };
 
 void Player::Impl::prepend(List& t){
@@ -459,6 +461,7 @@ bool Player::Impl::muovi(int i, int j){
 
 bool Player::Impl::muovi_rand(){
     bool mosso = false;
+    bool m = false;
     int nPezzi = 0;
     for(int i=0; i<8; i++){
         for(int j=0; j<8; j++){
@@ -473,26 +476,28 @@ bool Player::Impl::muovi_rand(){
             }
         }
     }
-        while(mosso == false){
+        while(m == false){
         srand(time(NULL));
-        std::cout << "nPezzi:" << nPezzi << std::endl;
         int r = rand() % nPezzi;
-        std::cout << "numero random:" << r << std::endl;
         int count = 0;
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
                 if(player_nr == 1){
                     if(history->table[i][j] == piece::X || history->table[i][j] == piece::x){
                         if(count == r)
-                            mosso = muovi(i,j);
+                            m = muovi(i,j);
                         count++;
                     }
                 }else{
                     if(history->table[i][j] == piece::O || history->table[i][j] == piece::o){
                         if(count == r)
-                            mosso = muovi(i,j);
+                            m = muovi(i,j);
                     count++;
                     }
+                }
+                mosso = m;
+                if(nPezzi == 1 && m == false){
+                    m = true;
                 }
             }
         }
@@ -501,13 +506,13 @@ bool Player::Impl::muovi_rand(){
     return mosso;
 }
 
-bool Player::Impl::is_equal(piece table[8][8]){
+bool Player::Impl::is_equal(piece source[8][8], piece dest[8][8]){
     bool eq = true;
     int i = 0;
     while(i < 8){
         int j = 0;
         while(j < 8){
-            if(this->history->table[i][j] != table[i][j]){
+            if(source[i][j] != dest[i][j]){
                 eq = false;
             }
             j++;
@@ -515,6 +520,14 @@ bool Player::Impl::is_equal(piece table[8][8]){
         i++;
     }
     return eq;
+}
+
+void Player::Impl::copyBoard(piece source[8][8], piece dest[8][8]){
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            dest[i][j] = source[i][j];
+        }
+    }
 }
 
 Player::Player(int player_nr){
@@ -741,7 +754,7 @@ bool Player::valid_move()const{
     if(pimpl->history->next == nullptr){
         throw player_exception{player_exception::index_out_of_bounds,string{"Ci sono meno di due scacchiere nella history!"}};
     }
-    if(pimpl->is_equal(pimpl->history->next->table)){
+    if(pimpl->is_equal(pimpl->history->table, pimpl->history->next->table)){
         valid = false;
     }else{ 
         for(int i=0; i<8; i++){
@@ -865,6 +878,27 @@ bool Player::loses()const{
     return !wins();
 }
 
+int Player::recurrence() const{
+    Player::Impl::List pCell;
+    pCell = pimpl->history;
+    piece table[8][8];
+    int count = 0;
+    if(pimpl->history == nullptr)
+         throw player_exception{player_exception::index_out_of_bounds,string{"History vuota!"}};
+
+    pimpl->copyBoard(pimpl->history->table,table);
+
+    while(pCell != nullptr){
+
+        if(pimpl->is_equal(table,pCell->table)){
+            count++;
+        }
+
+        pCell = pCell->next;
+    }
+    return count;
+}
+
 int main(){
     Player p1;
     Player p2(2);
@@ -902,6 +936,8 @@ int main(){
     }
 
 }
+
+
 
 
 
