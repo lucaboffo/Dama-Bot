@@ -385,21 +385,16 @@ bool Player::Impl::p_muovi(int i, int j, int da_muovere, int predatore){
                         mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
                     }
                 }else{
-                    bool cond1 = false, cond2 = false, cond3 = false, cond4 = false;
                         srand(time(NULL));
                         int r = rand()%4;
                         if(r == 0){
                             mosso = muovi_giu_destra(i,j,da_muovere,predatore);
-                            cond1 = true;
                         }else if(r == 1){
                             mosso = muovi_giu_sinistra(i,j,da_muovere,predatore);
-                            cond2 = true;
                         }else if(r == 2){
                             mosso = muovi_su_sinistra(i,j,da_muovere,predatore);
-                            cond3 = true;
                         }else if(r == 3){
                             mosso = muovi_su_destra(i,j,da_muovere,predatore);
-                            cond4 = true;
                         }
                     if(mosso == false)
                          mosso = muovi_giu_destra(i,j,da_muovere,predatore);
@@ -541,6 +536,12 @@ Player::Player(int player_nr){
 }
 
 Player::~Player(){
+    Player::Impl::List currentNode = pimpl->history;
+    while(currentNode != nullptr){
+        delete currentNode;
+        currentNode = currentNode->next;
+    }
+    
     delete pimpl;
 }
 
@@ -558,18 +559,17 @@ Player& Player::operator=(const Player& copy){
 
 Player::piece Player::operator()(int r,int c,int history_offset) const{
     piece p;
-    bool flag = false;
     Impl::List pCell = pimpl->history;
     if( r > 8 || r < 0 || c > 8 || c < 0 || history_offset < 0){
         throw player_exception{player_exception::index_out_of_bounds,string{"Parametri non presenti in memoria!"}};
     }else{
        int sum = 0;
-       while(pimpl->history != nullptr){
+       while(pCell != nullptr){
            if(sum == history_offset){
-               p = pimpl->history->table[r][c];
+               p = pCell->table[r][c];
            }
            sum++;
-           pimpl->history = pimpl->history->next;
+           pCell = pCell->next;
        }
        if(history_offset >= sum){
            throw player_exception{player_exception::index_out_of_bounds,string{"Parametri non presenti in memoria!"}};
