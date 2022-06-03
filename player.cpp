@@ -37,6 +37,8 @@ struct Player::Impl{
     bool is_equal(piece source[8][8], piece dest[8][8]);
 
     void copyBoard(piece source[8][8], piece dest[8][8]);
+
+    bool valid_muovi(int i, int j);
 };
 
 void Player::Impl::prepend(List& t){
@@ -525,6 +527,111 @@ void Player::Impl::copyBoard(piece source[8][8], piece dest[8][8]){
     }
 }
 
+bool Player::Impl::valid_muovi(int i, int j){
+    bool valid = false;
+    if(i == 0){
+        if(j == 0){
+            if(history->table[i+1][j+1] == history->next->table[i][j]){
+                if(history->table[i+1][j+1] != history->next->table[i+1][j+1]){
+                    valid = true;
+               }
+            }
+        }else{
+            if(history->table[i+1][j+1] == history->next->table[i][j]){
+                if(history->table[i+1][j+1] != history->next->table[i+1][j+1]){
+                    valid = true;
+               }
+            }
+            if(valid == false){
+                if(history->table[i+1][j-1] == history->next->table[i][j]){
+                    if(history->table[i+1][j-1] != history->next->table[i+1][j-1]){
+                        valid = true;
+                    }
+                }
+            }
+        }
+    }else if(i == 7){
+        if(j == 7){
+           if(history->table[i-1][j-1] == history->next->table[i][j]){
+                if(history->table[i-1][j-1] != history->next->table[i-1][j-1]){
+                    valid = true;
+                }
+            } 
+        }else{
+            if(history->table[i-1][j-1] == history->next->table[i][j]){
+                if(history->table[i-1][j-1] != history->next->table[i-1][j-1]){
+                    valid = true;
+                }
+            }
+            if(valid == false){
+                if(history->table[i-1][j+1] == history->next->table[i][j]){
+                    if(history->table[i-1][j+1] != history->next->table[i-1][j+1]){
+                        valid = true;
+                    }
+                }
+            }
+        }
+    }else{
+        if(j == 0){
+            if(history->table[i+1][j+1] == history->next->table[i][j]){
+                if(history->table[i+1][j+1] != history->next->table[i+1][j+1]){
+                    valid = true;
+               }
+            }
+            if(valid == false){
+                if(history->table[i-1][j+1] == history->next->table[i][j]){
+                    if(history->table[i-1][j+1] != history->next->table[i-1][j+1]){
+                        valid = true;
+                    }
+                }
+            }
+        }else if(j == 7){
+            if(history->table[i-1][j-1] == history->next->table[i][j]){
+                if(history->table[i-1][j-1] != history->next->table[i-1][j-1]){
+                    valid = true;
+                }
+            }
+            if(valid == false){
+                if(history->table[i-1][j+1] == history->next->table[i][j]){
+                    if(history->table[i-1][j+1] != history->next->table[i-1][j+1]){
+                        valid = true;
+                    }
+                }
+            }
+        }else{
+            if(history->table[i+1][j+1] == history->next->table[i][j]){
+                if(history->table[i+1][j+1] != history->next->table[i+1][j+1]){
+                    valid = true;
+               }
+            }
+            if(valid == false){
+                if(history->table[i+1][j-1] == history->next->table[i][j]){
+                    if(history->table[i+1][j-1] != history->next->table[i+1][j-1]){
+                        valid = true;
+                    }
+                }
+            }
+            if(valid == false){
+                if(history->table[i-1][j-1] == history->next->table[i][j]){
+                    if(history->table[i-1][j-1] != history->next->table[i-1][j-1]){
+                        valid = true;
+                    }
+                }
+            }
+            if(valid == false){
+               if(history->table[i-1][j+1] == history->next->table[i][j]){
+                    if(history->table[i-1][j+1] != history->next->table[i-1][j+1]){
+                        valid = true;
+                    }
+                } 
+            }
+        }
+    }
+    return valid;
+}
+
+
+
 Player::Player(int player_nr){
     pimpl = new Impl;
     pimpl->history = nullptr;
@@ -537,9 +644,11 @@ Player::Player(int player_nr){
 
 Player::~Player(){
     Player::Impl::List currentNode = pimpl->history;
+    Player::Impl::List temp;
     while(currentNode != nullptr){
+        temp = currentNode->next;
         delete currentNode;
-        currentNode = currentNode->next;
+        currentNode = temp;
     }
     
     delete pimpl;
@@ -761,37 +870,23 @@ bool Player::valid_move()const{
             for(int j=0; j<8; j++){
                 if(pimpl->history->next->table[i][j] != pimpl->history->table[i][j]){
                     if(pimpl->history->table[i][j] == piece::e){
-                        if(pimpl->history->table[i+1][j+1] == pimpl->history->next->table[i][j]){
-                            if(pimpl->history->table[i+1][j+1] != pimpl->history->next->table[i+1][j+1]){
-                                valid = true;
-                            }
-                        }
-                        if(pimpl->history->table[i+1][j-1] == pimpl->history->next->table[i][j]){
-                            if(pimpl->history->table[i+1][j-1] != pimpl->history->next->table[i+1][j-1]){
-                                valid = true;
-                            }
-                        }
-                        if(pimpl->history->table[i-1][j+1] == pimpl->history->next->table[i][j]){
-                            if(pimpl->history->table[i-1][j+1] != pimpl->history->next->table[i-1][j+1]){
-                                valid = true;
-                            }
-                        }
-                        if(pimpl->history->table[i-1][j-1] == pimpl->history->next->table[i][j]){
-                            if(pimpl->history->table[i-1][j-1] != pimpl->history->next->table[i-1][j-1]){
+                        valid = pimpl->valid_muovi(i,j);
+                        if(valid == false){
+                            if(pimpl->history->table[i+1][j+1] == pimpl->history->next->table[i-1][j-1]){
                                 valid = true;
                             }
                         }
                         if(valid == false){
-                            //controllo se è stata mangiata
-                            if(pimpl->history->table[i+1][j+1] == pimpl->history->next->table[i-1][j-1]){
-                                valid = true;
-                            }
                             if(pimpl->history->table[i+1][j-1] == pimpl->history->next->table[i-1][j+1]){
                                 valid = true;
                             }
+                        }
+                        if(valid == false){
                             if(pimpl->history->table[i-1][j-1] == pimpl->history->next->table[i+1][j+1]){
                                 valid = true;
                             }
+                        }
+                        if(valid == false){
                             if(pimpl->history->table[i-1][j+1] == pimpl->history->next->table[i+1][j-1]){
                                 valid = true;
                             }
@@ -924,7 +1019,7 @@ int main(){
         i++;
         std::cout << "mossa p2 " << i << std::endl; 
         p2.store_board("board" + std::to_string(i) + ".txt");
-        if(!p2.valid_move()){//problema
+        if(!p2.valid_move()){
             std::cout << "mossa non valida p2" << std::endl;
             break;
         }
