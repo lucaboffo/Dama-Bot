@@ -1104,43 +1104,7 @@ int Player::recurrence() const{
     return count;
 }
 
-int main(){
-    Player p1;
-    Player p2(2);
 
-    p1.init_board("board1.txt");
-    int i = 1;
-    while(true){
-        p1.load_board("board" + std::to_string(i) + ".txt");
-        p1.move();
-        i++;
-        std::cout << "mossa p1 " << i << std::endl; 
-        p1.store_board("board" + std::to_string(i) + ".txt");
-        if(!p1.valid_move()){
-            std::cout << "mossa non valida p1" << std::endl;
-            break;
-        }
-        if(p1.wins()){
-           std::cout << "ha vinto p1" << std::endl;
-           break;
-       }
-        p2.load_board("board" + std::to_string(i) + ".txt");
-        p2.move();
-        i++;
-        std::cout << "mossa p2 " << i << std::endl; 
-        p2.store_board("board" + std::to_string(i) + ".txt");
-        if(!p2.valid_move()){
-            std::cout << "mossa non valida p2" << std::endl;
-            break;
-        }
-        if(p2.wins()){
-           std::cout << "ha vinto p2" << std::endl;
-           break;
-       }
-        
-    }
-
-}
 
 
 
