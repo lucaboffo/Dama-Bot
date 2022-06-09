@@ -39,6 +39,7 @@ struct Player::Impl{
     void copyBoard(piece source[8][8], piece dest[8][8]);
 
     bool valid_muovi(int i, int j);
+    bool valid_promuovi(int i, int j);
 };
 
 void Player::Impl::prepend(List& t){
@@ -592,8 +593,8 @@ bool Player::Impl::valid_muovi(int i, int j){
                 }
             }
             if(valid == false){
-                if(history->table[i-1][j+1] == history->next->table[i][j]){
-                    if(history->table[i-1][j+1] != history->next->table[i-1][j+1]){
+                if(history->table[i+1][j-1] == history->next->table[i][j]){
+                    if(history->table[i+1][j-1] != history->next->table[i+1][j-1]){
                         valid = true;
                     }
                 }
@@ -630,7 +631,107 @@ bool Player::Impl::valid_muovi(int i, int j){
     return valid;
 }
 
-
+bool Player::Impl::valid_promuovi(int i, int j){
+    bool valid = false;
+    if(i == 1){
+        if(j == 7){
+            if(history->table[i-1][j-1] == piece::X && history->next->table[i][j] == piece::x){
+                if(history->table[i][j] == piece::e){
+                    valid = true;
+                }
+            }
+        }else{
+            if(history->table[i-1][j-1] == piece::X && history->next->table[i][j] == piece::x){
+                if(history->table[i][j] == piece::e){
+                    valid = true;
+                }
+            }
+            if(valid == false){
+                if(history->table[i-1][j+1] == piece::X && history->next->table[i][j] == piece::x){
+                if(history->table[i][j] == piece::e){
+                    valid = true;
+                }
+            }
+            }
+        }
+    }else if(i == 6){
+        if(j == 0){
+            if(history->table[i+1][j+1] == piece::O && history->next->table[i][j] == piece::o){
+                if(history->table[i][j] == piece::e){
+                    valid = true;
+                }
+            }
+        }else{
+            if(history->table[i+1][j+1] == piece::O && history->next->table[i][j] == piece::o){
+                if(history->table[i][j] == piece::e){
+                    valid = true;
+                }
+            }
+            if(valid == false){
+               if(history->table[i+1][j-1] == piece::O && history->next->table[i][j] == piece::o){
+                if(history->table[i][j] == piece::e){
+                    valid = true;
+                }
+            } 
+            }
+        }
+    }else if(i == 2){
+        if(j == 0){
+            if(history->table[i-2][j+2] == piece::X && history->next->table[i][j] == piece::x){
+                if(history->table[i][j] == piece::e && history->table[i-1][j+1] == piece::e){
+                    valid = true;
+                }
+            }
+        }else if(j == 6){
+            if(history->table[i-2][j-2] == piece::X && history->next->table[i][j] == piece::x){
+                if(history->table[i][j] == piece::e && history->table[i-1][j-1] == piece::e){
+                    valid = true;
+                }
+            }
+        }else{
+            if(history->table[i-2][j-2] == piece::X && history->next->table[i][j] == piece::x){
+                if(history->table[i][j] == piece::e && history->table[i-1][j-1] == piece::e){
+                    valid = true;
+                }
+            }
+            if(valid == false){
+                if(history->table[i-2][j+2] == piece::X && history->next->table[i][j] == piece::x){
+                    if(history->table[i][j] == piece::e && history->table[i-1][j+1] == piece::e){
+                        valid = true;
+                    }
+                }
+            }
+        }
+    }else if(i == 5){
+        if(j == 7){
+            if(history->table[i+2][j-2] == piece::O && history->next->table[i][j] == piece::o){
+                if(history->table[i][j] == piece::e && history->table[i+1][j-1] == piece::e){
+                    valid = true;
+                }
+            }
+        }else if(j == 1){
+            if(history->table[i+2][j+2] == piece::O && history->next->table[i][j] == piece::o){
+                if(history->table[i][j] == piece::e && history->table[i+1][j+1] == piece::e){
+                    valid = true;
+                }
+            }
+        }else{
+            if(history->table[i+2][j-2] == piece::O && history->next->table[i][j] == piece::o){
+                if(history->table[i][j] == piece::e && history->table[i+1][j-1] == piece::e){
+                    valid = true;
+                }
+            }
+            if(valid == false){
+                if(history->table[i+2][j+2] == piece::O && history->next->table[i][j] == piece::o){
+                if(history->table[i][j] == piece::e && history->table[i+1][j+1] == piece::e){
+                    valid = true;
+                }
+            } 
+            }
+        }
+    }
+    return valid;
+}
 
 Player::Player(int player_nr){
     pimpl = new Impl;
@@ -866,34 +967,43 @@ bool Player::valid_move()const{
     if(pimpl->is_equal(pimpl->history->table, pimpl->history->next->table)){
         valid = false;
     }else{ 
-        for(int i=0; i<8; i++){
-            for(int j=0; j<8; j++){
+        int i = 0;
+        while(i<8 && valid == false){
+            int j = 0;
+            while(j < 8 && valid == false){
                 if(pimpl->history->next->table[i][j] != pimpl->history->table[i][j]){
                     if(pimpl->history->table[i][j] == piece::e){
                         valid = pimpl->valid_muovi(i,j);
                         if(valid == false){
-                            if(pimpl->history->table[i+1][j+1] == pimpl->history->next->table[i-1][j-1]){
-                                valid = true;
-                            }
+                            valid = pimpl->valid_promuovi(i,j);
                         }
-                        if(valid == false){
-                            if(pimpl->history->table[i+1][j-1] == pimpl->history->next->table[i-1][j+1]){
-                                valid = true;
+                        if((pimpl->player_nr == 1 && (pimpl->history->next->table[i][j] == piece::O || pimpl->history->next->table[i][j] == piece::o)) || (pimpl->player_nr == 2 && (pimpl->history->next->table[i][j] == piece::X || pimpl->history->next->table[i][j] == piece::x))){
+                            if(valid == false){
+                                if(pimpl->history->table[i+1][j+1] != piece::e && pimpl->history->table[i+1][j+1] == pimpl->history->next->table[i-1][j-1]){
+                                    valid = true;
+                                }
                             }
-                        }
-                        if(valid == false){
-                            if(pimpl->history->table[i-1][j-1] == pimpl->history->next->table[i+1][j+1]){
-                                valid = true;
+                            if(valid == false){
+                                if(pimpl->history->table[i+1][j-1] != piece::e && pimpl->history->table[i+1][j-1] == pimpl->history->next->table[i-1][j+1]){
+                                    valid = true;
+                                }
                             }
-                        }
-                        if(valid == false){
-                            if(pimpl->history->table[i-1][j+1] == pimpl->history->next->table[i+1][j-1]){
-                                valid = true;
+                            if(valid == false){
+                                if(pimpl->history->table[i-1][j-1] != piece::e && pimpl->history->table[i-1][j-1] == pimpl->history->next->table[i+1][j+1]){
+                                    valid = true;
+                                }
+                            }
+                            if(valid == false){
+                                if(pimpl->history->table[i-1][j+1] != piece::e && pimpl->history->table[i-1][j+1] == pimpl->history->next->table[i+1][j-1]){
+                                    valid = true;
+                                }
                             }
                         }
                     }
                 }
+                j++;
             }
+            i++;
         }
     }
     return valid;
