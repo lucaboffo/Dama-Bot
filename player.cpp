@@ -734,13 +734,12 @@ bool Player::Impl::valid_promuovi(int i, int j){
 }
 
 Player::Player(int player_nr){
-    pimpl = new Impl;
-    pimpl->history = nullptr;
-    if(player_nr == 1 || player_nr == 2){
-        pimpl->player_nr = player_nr;
-    }else{
+    if(player_nr != 1 && player_nr != 2){
         throw player_exception{player_exception::index_out_of_bounds,string{"Impossibile selezionare il player!"}};
     }
+    pimpl = new Impl;
+    pimpl->history = nullptr;
+    pimpl->player_nr = player_nr;
 }
 
 Player::~Player(){
@@ -1103,7 +1102,6 @@ int Player::recurrence() const{
     }
     return count;
 }
-
 
 
 
