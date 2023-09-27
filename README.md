@@ -6,7 +6,7 @@ created: 2022-04-20 07:37:44Z
 
 ﻿
 
-Progetto CT0442
+# Progetto CT0442
 
 anno 2021/2022
 
@@ -18,145 +18,50 @@ leggermente semplificate, leggi sotto): <https://it.wikipedia.org/wiki/Dama>
 
 **1. Regole del gioco**
 
-I giocatori sono due: **player1** (rappresentato con delle **x** nell’immagine sopra) e
-
-**player2** (rappresentato con delle **o** sopra). Il gioco ha luogo su una scacchiera 8x8. Ad
-
-ogni istante, i pezzi si trovano solo sulle celle marroni (vedi immagine). I **pezzi** sulla
-
-scacchiera sono di due tipi:
-
-● “Pedina”: sono i pezzi inizialmente a disposizione di ogni giocatore (all’inizio,
-
-12 per giocatore). Nelle immagini successive, verranno indicate con **o**/**x**
-
-
-
-
-
-● “Dama”: sono pezzi con mosse speciali. Quando una pedina di un giocatore
-
-raggiunge la riga opposta (riga 7 per player1 o riga 0 per player2), si trasforma
-
-automaticamente in Dama. Nelle immagini successive, verranno indicate con
-
-**O**/**X**
+I giocatori sono due: **player1** (rappresentato con delle **x** nell’immagine sopra) e **player2** (rappresentato con delle **o** sopra). Il gioco ha luogo su una scacchiera 8x8. Ad ogni istante, i pezzi si trovano solo sulle celle marroni (vedi immagine). I **pezzi** sulla scacchiera sono di due tipi:
+● “Pedina”: sono i pezzi inizialmente a disposizione di ogni giocatore (all’inizio, 12 per giocatore). Nelle immagini successive, verranno indicate con **o**/**x**
+● “Dama”: sono pezzi con mosse speciali. Quando una pedina di un giocatore raggiunge la riga opposta (riga 7 per player1 o riga 0 per player2), si trasforma automaticamente in Dama. Nelle immagini successive, verranno indicate con **O**/**X**
 
 Tutti i pezzi possono muoversi in solo due modi:
-
 \1. Ad una cella marrone adiacente in diagonale, non occupata da un altro pezzo:
+  ○ le Pedine di player1 possono solo muoversi in alto a destra (ossia incrementando il numero di riga e di colonna di 1 unità) oppure in alto a sinistra (ossia incrementando il numero di riga di 1 unità e decrementando il numero di colonna di 1 unità).
+  ○ In modo analogo, le Pedine di player2 possono solo muoversi in basso a sinistra o in basso a destra.
+  ○ Le Dame di entrambi i giocatori possono muoversi in diagonale di una cella in qualsiasi direzione (alto/sinistra, alto/destra, basso/sinistra, basso/destra).
 
-○ le Pedine di player1 possono solo muoversi in alto a destra (ossia
-
-incrementando il numero di riga e di colonna di 1 unità) oppure in alto
-
-a sinistra (ossia incrementando il numero di riga di 1 unità e
-
-decrementando il numero di colonna di 1 unità).
-
-○ In modo analogo, le Pedine di player2 possono solo muoversi in basso a
-
-sinistra o in basso a destra.
-
-○ Le Dame di entrambi i giocatori possono muoversi in diagonale di una
-
-cella in qualsiasi direzione (alto/sinistra, alto/destra, basso/sinistra,
-
-basso/destra).
-
-\2. In diagonale di due celle per mangiare un pezzo avversario: in questo caso, la
-
-cella diagonale adiacente deve contenere un pezzo avversario (che viene
-
-mangiato), mentre la cella successiva in diagonale deve essere vuota per
-
-consentire lo spostamento. Esempio:
-
+\2. In diagonale di due celle per mangiare un pezzo avversario: in questo caso, la cella diagonale adiacente deve contenere un pezzo avversario (che viene mangiato), mentre la cella successiva in diagonale deve essere vuota per consentire lo spostamento. Esempio:
 ![8884971553579926086d27a64e2123a7.png](../../../_resources/8884971553579926086d27a64e2123a7.png)
 
-La **x** nella cella azzurra si può spostare nella cella azzurra in alto a destra (libera),
-
-mangiando la **o** nella cella rossa. Dopo lo spostamento, la **o** nella cella rossa viene
-
-rimossa dalla scacchiera.
-
-
-
-
+La **x** nella cella azzurra si può spostare nella cella azzurra in alto a destra (libera), mangiando la **o** nella cella rossa. Dopo lo spostamento, la **o** nella cella rossa viene rimossa dalla scacchiera.
 
 Ulteriori regole:
 
-\1) le Pedine di player1 possono solo mangiare in direzione alto/sinistra oppure
-
-alto/destra. Viceversa, le Pedine di player2 possono solo mangiare in direzione
-
-basso/sinistra oppure basso/destra.
+\1) le Pedine di player1 possono solo mangiare in direzione alto/sinistra oppure alto/destra. Viceversa, le Pedine di player2 possono solo mangiare in direzione basso/sinistra oppure basso/destra.
 
 \2) Le Pedine possono solo mangiare altre Pedine (non Dame).
 
 \3) Si possono mangiare solo pezzi dell’avversario (non i propri!)
 
-\4) Dame di entrambi i giocatori possono mangiare in qualsiasi direzione
-
-(alto/sinistra, alto/destra, basso/sinistra, basso/destra).
+\4) Dame di entrambi i giocatori possono mangiare in qualsiasi direzione (alto/sinistra, alto/destra, basso/sinistra, basso/destra).
 
 \5) Le Dame possono mangiare sia Pedine che Dame.
 
-\6) Importante: per semplificare l’implementazione del gioco, **è consentito**
+\6) Importante: per semplificare l’implementazione del gioco, **è consentito** **mangiare** (al massimo) **un solo pezzo per turno**. Non sono ammessi “salti” in diagonale tra molteplici celle che permettono di mangiare due o più pezzi avversari (in alcune varianti del gioco questo è concesso).
 
-**mangiare** (al massimo) **un solo pezzo per turno**. Non sono ammessi “salti” in
+\7) Non è obbligatorio mangiare un pezzo avversario se ci si trova in condizione di poterlo fare.
 
-diagonale tra molteplici celle che permettono di mangiare due o più pezzi
+\8) E’ obbligatorio fare una mossa durante il proprio turno: una mancata mossa (scacchiera invariata) porta a perdere il gioco automaticamente.
 
-avversari (in alcune varianti del gioco questo è concesso).
-
-\7) Non è obbligatorio mangiare un pezzo avversario se ci si trova in condizione di
-
-poterlo fare.
-
-\8) E’ obbligatorio fare una mossa durante il proprio turno: una mancata mossa
-
-(scacchiera invariata) porta a perdere il gioco automaticamente.
-
-\9) Se si raggiunge la riga opposta con una Pedina, è obbligatorio promuoverla a
-
-Dama.
+\9) Se si raggiunge la riga opposta con una Pedina, è obbligatorio promuoverla a Dama.
 
 ![a979e991c7a84ee37e83ab4fb78b93a1.png](../../../_resources/a979e991c7a84ee37e83ab4fb78b93a1.png)
 
-Esempio: una Pedina di player1 ha raggiunto la riga opposta (cella azzurra) ed è
-
-quindi stata promossa a Dama. Da qui in poi, il pezzo sarà sempre una Dama.
-
-
-
+Esempio: una Pedina di player1 ha raggiunto la riga opposta (cella azzurra) ed è quindi stata promossa a Dama. Da qui in poi, il pezzo sarà sempre una Dama.
 
 
 **2. Come si svolge una partita**
 
-I vostri codici verranno fatti giocare l’uno contro l’altro in un torneo. L’esame si può
-
-passare anche con una strategia “naive” (o completamente casuale), ma ai fini della
-
-valutazione finale vi conviene implementare una qualche strategia intelligente: ai
-
-primi classificati nel torneo verranno assegnati punti extra e inoltre il voto verrà
-
-assegnato anche in base alla strategia implementata (la controlleremo a mano).
-
-Voi dovete solo implementare la **classe Player** (dettagli nelle prossime sezioni) la cui
-
-dichiarazione è contenuta nell’header player.hpp (scrivete la vostra implementazione
-
-in un file player.cpp): gli altri file sorgente servono solo a noi per lanciare il vostro
-
-codice e non vanno toccati. Non preoccupatevi troppo di come faremo gareggiare i
-
-vostri codici: voi dovete solo implementare correttamente la classe Player. Per
-
-completezza (può tornarvi utile per testare il vostro codice), in questa sezione vi
-
-accenniamo come avviene una partita:
+I vostri codici verranno fatti giocare l’uno contro l’altro in un torneo. L’esame si può passare anche con una strategia “naive” (o completamente casuale), ma ai fini della valutazione finale vi conviene implementare una qualche strategia intelligente: ai primi classificati nel torneo verranno assegnati punti extra e inoltre il voto verrà assegnato anche in base alla strategia implementata (la controlleremo a mano).
+Voi dovete solo implementare la **classe Player** (dettagli nelle prossime sezioni) la cui dichiarazione è contenuta nell’header player.hpp (scrivete la vostra implementazione in un file player.cpp): gli altri file sorgente servono solo a noi per lanciare il vostro codice e non vanno toccati. Non preoccupatevi troppo di come faremo gareggiare i vostri codici: voi dovete solo implementare correttamente la classe Player. Per completezza (può tornarvi utile per testare il vostro codice), in questa sezione vi accenniamo come avviene una partita:
 
 \1. Ad ogni istante della partita, tre eseguibili sono in esecuzione: due binari
 
